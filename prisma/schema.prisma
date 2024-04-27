@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  price       Int
+  description String?
+  image       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id           String           @id @default(uuid())
+  username     String        @unique
+  password     String
+  // role         String    // Contoh: "admin", "user", dst.
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  students     Student[] // Relasi ke mahasiswa yang diinputkan oleh pengguna
+  activities   Activity[] // Relasi ke kegiatan yang diinputkan oleh pengguna
+  scholarships Scholarship[] // Relasi ke beasiswa yang diinputkan oleh pengguna
+  academic Academic[]
+
+}
+
+model Student {
+  id        String      @id @default(uuid())
+  nrp       Int      @unique
+  name      String
+  major     String
+  year      Int
+  ipk       Decimal @default(0.0)
+  semester  Int
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id]) 
+  userId    String?
+  username  String?  // Menyimpan username pengguna
+}
+
+model Activity {
+  id          String      @id @default(uuid())
+  title       String
+  date String
+  description String?
+
+  link        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      String?
+  username  String?  // Menyimpan username pengguna
+}
+
+model Scholarship {
+  id          String      @id @default(uuid())
+  title       String
+  date String
+  description String?
+  link        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      String?
+  username  String?  // Menyimpan username pengguna
+}
+
+model Academic {
+  id          String      @id @default(uuid())
+  title       String
+  date        String
+  description String?
+  link       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      String?
+  username  String?  // Menyimpan username pengguna
+}
