@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from 'bcrypt'
 
 /**
  * Hash a password
@@ -6,12 +6,12 @@ import bcrypt from "bcrypt";
  * @returns The hashed password
  */
 export const hashPassword = async (password: string): Promise<string> => {
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        return hashedPassword;
-    } catch (error: any) {
-        throw new Error("Error hashing password: " + error.message);
-    }
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10)
+    return hashedPassword
+  } catch (error: any) {
+    throw new Error('Error hashing password: ' + error.message)
+  }
 }
 
 /**
@@ -21,10 +21,10 @@ export const hashPassword = async (password: string): Promise<string> => {
  * @returns True if the passwords match, false otherwise
  */
 export const checkPassword = async (password: string, userPassword: string): Promise<boolean> => {
-    try {
-        const passwordMatch = await bcrypt.compare(password, userPassword);
-        return passwordMatch;
-    } catch (error: any) {
-        throw new Error("Error comparing passwords: " + error.message);
-    }
+  try {
+    const passwordMatch = await bcrypt.compare(password, userPassword)
+    return passwordMatch
+  } catch (error: any) {
+    throw new Error('Error comparing passwords: ' + error.message)
+  }
 }

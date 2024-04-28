@@ -1,14 +1,14 @@
-import Joi from "joi";
+import Joi from 'joi'
 
-import { AcademicData } from "./academic.repository";
+import { AcademicData } from './academic.repository'
 
 export const createAcademicValidation = (playload: AcademicData) => {
-    const schema = Joi.object({
-        title: Joi.string().required(),
-        date: Joi.date().required(),
-        description: Joi.string().required(),
-        link: Joi.string().optional(),
-        userId: Joi.string().optional(),
-    });
-    return schema.validate(playload);
+  const schema = Joi.object({
+    title: Joi.string().required(),
+    date: Joi.date().required(),
+    description: Joi.string().required(),
+    link: Joi.string().optional(),
+    userId: Joi.string().optional()
+  })
+  return schema.validate(playload)
 }
