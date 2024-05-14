@@ -11,7 +11,7 @@ const createAcademicValidation = (playload) => {
         date: joi_1.default.date().required(),
         description: joi_1.default.string().required(),
         link: joi_1.default.string().optional(),
-        userId: joi_1.default.string().optional(),
+        userId: joi_1.default.string().optional()
     });
     return schema.validate(playload);
 };

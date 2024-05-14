@@ -6,11 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createRefreshToken = exports.verifyJwt = exports.signJwt = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
+// import { findUserByUsername } from 'src/apps/user/auth.service'
 dotenv_1.default.config();
 // Fungsi untuk menandatangani token JWT menggunakan kunci pribadi
 const signJwt = (payload, options) => {
     const privateKey = process.env.JWT_PRIVATE;
-    return jsonwebtoken_1.default.sign(payload, privateKey, Object.assign(Object.assign({}, (options && options)), { algorithm: "RS256" }));
+    return jsonwebtoken_1.default.sign(payload, privateKey, Object.assign(Object.assign({}, (options && options)), { algorithm: 'RS256' }));
 };
 exports.signJwt = signJwt;
 // Fungsi untuk memverifikasi token JWT menggunakan kunci publik
@@ -26,7 +27,7 @@ const verifyJwt = (token) => {
     catch (error) {
         return {
             valid: false,
-            expired: error.message === "jwt expired",
+            expired: error.message === 'jwt expired'
         };
     }
 };

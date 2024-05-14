@@ -5,16 +5,18 @@ interface ScholarshipData {
   title: string
   date: string
   description: string
-
+  image: string
   userId: number
   username?: string
   link: string
+  imageUrl: string
 }
 
 interface Scholarship {
   id: string
   title: string
   date: string
+  image: string | null
   description: string | null
   createdAt: Date
   updatedAt: Date
@@ -37,17 +39,31 @@ const findScholarshipById = async (id: string): Promise<Scholarship | null> => {
   return scholarship
 }
 
-const insertScholarship = async (scholarshipData: ScholarshipData): Promise<Scholarship> => {
-  const scholarship = await prisma.scholarship.create({
-    data: {
-      title: scholarshipData.title,
-      date: scholarshipData.date,
-      description: scholarshipData.description,
-
-      link: scholarshipData.link
+const insertScholarship = async (scholarshipData: ScholarshipData, userId: string): Promise<Scholarship> => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
+    if (!user) {
+      throw new Error('User not found')
     }
-  })
-  return scholarship
+    const scholarship = await prisma.scholarship.create({
+      data: {
+        title: scholarshipData.title,
+        date: scholarshipData.date,
+        description: scholarshipData.description,
+        image: scholarshipData.image,
+        link: scholarshipData.link,
+        userId: userId,
+        username: user.username
+      }
+    })
+    return scholarship
+  } catch (error: any) {
+    throw new Error(`Error inserting scholarship: ${error.message}`)
+  }
 }
 
 const editScholarship = async (id: string, scholarshipData: ScholarshipData): Promise<Scholarship> => {
@@ -59,7 +75,7 @@ const editScholarship = async (id: string, scholarshipData: ScholarshipData): Pr
       title: scholarshipData.title,
       date: scholarshipData.date,
       description: scholarshipData.description,
-
+      image: scholarshipData.image,
       link: scholarshipData.link
     }
   })

@@ -22,8 +22,8 @@ exports.findProducts = findProducts;
 const findProductById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const product = yield db_1.default.product.findUnique({
         where: {
-            id,
-        },
+            id
+        }
     });
     return product;
 });
@@ -34,8 +34,8 @@ const insertProduct = (productData) => __awaiter(void 0, void 0, void 0, functio
             name: productData.name,
             description: productData.description,
             image: productData.image,
-            price: productData.price,
-        },
+            price: productData.price
+        }
     });
     return product;
 });
@@ -43,22 +43,22 @@ exports.insertProduct = insertProduct;
 const deleteProduct = (id) => __awaiter(void 0, void 0, void 0, function* () {
     yield db_1.default.product.delete({
         where: {
-            id,
-        },
+            id
+        }
     });
 });
 exports.deleteProduct = deleteProduct;
 const editProduct = (id, productData) => __awaiter(void 0, void 0, void 0, function* () {
     const product = yield db_1.default.product.update({
         where: {
-            id,
+            id
         },
         data: {
             description: productData.description,
             image: productData.image,
             name: productData.name,
-            price: productData.price,
-        },
+            price: productData.price
+        }
     });
     return product;
 });

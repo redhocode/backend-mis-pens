@@ -22,42 +22,52 @@ exports.findActifitys = findActifitys;
 const findActifitysById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const activity = yield db_1.default.activity.findUnique({
         where: {
-            id,
-        },
+            id
+        }
     });
     return activity;
 });
 exports.findActifitysById = findActifitysById;
-const insertActivity = (activityData) => __awaiter(void 0, void 0, void 0, function* () {
-    //    const user = await prisma.user.findUnique({
-    //        where: {
-    //            id: activityData.userId,
-    //        },
-    //    })
-    const activity = yield db_1.default.activity.create({
-        data: {
-            title: activityData.title,
-            date: activityData.date,
-            description: activityData.description,
-            link: activityData.link,
-            userId: activityData.userId,
-            //    username: user?.username,
-        },
-    });
-    return activity;
+const insertActivity = (activityData, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield db_1.default.user.findUnique({
+            where: {
+                id: userId
+            }
+        });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        const activity = yield db_1.default.activity.create({
+            data: {
+                title: activityData.title,
+                date: activityData.date,
+                description: activityData.description,
+                image: activityData.image,
+                link: activityData.link,
+                userId: userId,
+                username: user.username
+            }
+        });
+        return activity;
+    }
+    catch (error) {
+        throw new Error(`Error inserting activity: ${error.message}`);
+    }
 });
 exports.insertActivity = insertActivity;
 const editActivity = (id, activityData) => __awaiter(void 0, void 0, void 0, function* () {
     const activity = yield db_1.default.activity.update({
         where: {
-            id,
+            id
         },
         data: {
             title: activityData.title,
             date: activityData.date,
+            image: activityData.image,
             description: activityData.description,
-            link: activityData.link,
-        },
+            link: activityData.link
+        }
     });
     return activity;
 });
@@ -65,8 +75,8 @@ exports.editActivity = editActivity;
 const deleteActivity = (id) => __awaiter(void 0, void 0, void 0, function* () {
     yield db_1.default.activity.delete({
         where: {
-            id,
-        },
+            id
+        }
     });
 });
 exports.deleteActivity = deleteActivity;

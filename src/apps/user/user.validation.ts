@@ -5,7 +5,8 @@ import { UserData } from './user.repository'
 export const createUserValidation = (playload: UserData) => {
   const schema = Joi.object({
     username: Joi.string().required(),
-    password: Joi.string().required()
+    password: Joi.string().required(),
+    role: Joi.string().required()
   })
   return schema.validate(playload)
 }
@@ -13,7 +14,8 @@ export const createUserValidation = (playload: UserData) => {
 export const createSessionValidation = (playload: UserData) => {
   const schema = Joi.object({
     username: Joi.string().required(),
-    password: Joi.string().required()
+    password: Joi.string().required(),
+    role: Joi.string().required()
   })
   return schema.validate(playload)
 }

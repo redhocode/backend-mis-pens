@@ -19,36 +19,44 @@ const findAcademics = () => __awaiter(void 0, void 0, void 0, function* () {
     return academics;
 });
 exports.findAcademics = findAcademics;
-const insertAcademic = (academicData) => __awaiter(void 0, void 0, void 0, function* () {
-    // const user = await prisma.user.findUnique({
-    //     where: {
-    //         id: academicData.userId,
-    //     },
-    // })
-    const academic = yield db_1.default.academic.create({
-        data: {
-            title: academicData.title,
-            date: academicData.date,
-            description: academicData.description,
-            link: academicData.link,
-            userId: academicData.userId,
-            // username: user?.username,
-        },
-    });
-    return academic;
+const insertAcademic = (academicData, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield db_1.default.user.findUnique({
+            where: {
+                id: userId
+            }
+        });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        const academic = yield db_1.default.academic.create({
+            data: {
+                title: academicData.title,
+                date: academicData.date,
+                description: academicData.description,
+                link: academicData.link,
+                userId: userId,
+                username: user.username
+            }
+        });
+        return academic;
+    }
+    catch (error) {
+        throw new Error(`Error inserting academic: ${error}`);
+    }
 });
 exports.insertAcademic = insertAcademic;
 const updateAcademic = (id, academicData) => __awaiter(void 0, void 0, void 0, function* () {
     const academic = yield db_1.default.academic.update({
         where: {
-            id,
+            id
         },
         data: {
             title: academicData.title,
             date: academicData.date,
             description: academicData.description,
-            link: academicData.link,
-        },
+            link: academicData.link
+        }
     });
     return academic;
 });
@@ -56,8 +64,8 @@ exports.updateAcademic = updateAcademic;
 const deleteAcademic = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const academic = yield db_1.default.academic.delete({
         where: {
-            id,
-        },
+            id
+        }
     });
     return academic;
 });
@@ -65,8 +73,8 @@ exports.deleteAcademic = deleteAcademic;
 const findAcademicById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const academic = yield db_1.default.academic.findUnique({
         where: {
-            id,
-        },
+            id
+        }
     });
     return academic;
 });

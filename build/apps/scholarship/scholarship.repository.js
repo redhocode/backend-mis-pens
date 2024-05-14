@@ -22,35 +22,52 @@ exports.findScholarship = findScholarship;
 const findScholarshipById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const scholarship = yield db_1.default.scholarship.findUnique({
         where: {
-            id,
-        },
+            id
+        }
     });
     return scholarship;
 });
 exports.findScholarshipById = findScholarshipById;
-const insertScholarship = (scholarshipData) => __awaiter(void 0, void 0, void 0, function* () {
-    const scholarship = yield db_1.default.scholarship.create({
-        data: {
-            title: scholarshipData.title,
-            date: scholarshipData.date,
-            description: scholarshipData.description,
-            link: scholarshipData.link,
-        },
-    });
-    return scholarship;
+const insertScholarship = (scholarshipData, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield db_1.default.user.findUnique({
+            where: {
+                id: userId
+            }
+        });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        const scholarship = yield db_1.default.scholarship.create({
+            data: {
+                title: scholarshipData.title,
+                date: scholarshipData.date,
+                description: scholarshipData.description,
+                image: scholarshipData.image,
+                link: scholarshipData.link,
+                userId: userId,
+                username: user.username
+            }
+        });
+        return scholarship;
+    }
+    catch (error) {
+        throw new Error(`Error inserting scholarship: ${error.message}`);
+    }
 });
 exports.insertScholarship = insertScholarship;
 const editScholarship = (id, scholarshipData) => __awaiter(void 0, void 0, void 0, function* () {
     const scholarship = yield db_1.default.scholarship.update({
         where: {
-            id,
+            id
         },
         data: {
             title: scholarshipData.title,
             date: scholarshipData.date,
             description: scholarshipData.description,
-            link: scholarshipData.link,
-        },
+            image: scholarshipData.image,
+            link: scholarshipData.link
+        }
     });
     return scholarship;
 });
@@ -58,8 +75,8 @@ exports.editScholarship = editScholarship;
 const deleteScholarship = (id) => __awaiter(void 0, void 0, void 0, function* () {
     yield db_1.default.scholarship.delete({
         where: {
-            id,
-        },
+            id
+        }
     });
 });
 exports.deleteScholarship = deleteScholarship;

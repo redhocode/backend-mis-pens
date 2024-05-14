@@ -18,7 +18,7 @@ const uuid_1 = require("uuid");
 const getAllScholarships = () => __awaiter(void 0, void 0, void 0, function* () {
     const scholarships = yield (0, scholarship_repository_1.findScholarship)();
     if (!scholarships) {
-        throw new Error("Scholarship not found");
+        throw new Error('Scholarship not found');
     }
     return scholarships;
 });
@@ -26,12 +26,12 @@ exports.getAllScholarships = getAllScholarships;
 const getScholarshipById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const scholarship = yield (0, scholarship_repository_1.findScholarshipById)(id);
     if (!scholarship) {
-        throw new Error("Scholarship not found");
+        throw new Error('Scholarship not found');
     }
     return scholarship;
 });
 exports.getScholarshipById = getScholarshipById;
-const createScholarship = (newScholarshipData) => __awaiter(void 0, void 0, void 0, function* () {
+const createScholarship = (newScholarshipData, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const { error, value } = (0, scholarship_validation_1.createScholarshipValidation)(newScholarshipData);
     if (error) {
         throw new Error(error.details[0].message);
@@ -39,7 +39,7 @@ const createScholarship = (newScholarshipData) => __awaiter(void 0, void 0, void
     // Menghasilkan UUID atau nanoid
     const id = (0, uuid_1.v4)(); // Menggunakan UUID
     // const id = nanoid(); // Menggunakan nanoid
-    const scholarship = yield (0, scholarship_repository_1.insertScholarship)(Object.assign(Object.assign({}, newScholarshipData), { id }));
+    const scholarship = yield (0, scholarship_repository_1.insertScholarship)(Object.assign(Object.assign({}, newScholarshipData), { id }), userId);
     return scholarship;
 });
 exports.createScholarship = createScholarship;

@@ -31,7 +31,7 @@ const createUser = async (userData: UserData): Promise<User> => {
 
   try {
     // Menggunakan password yang sudah di-hash
-    value.password = await hashPassword(value.password)
+    // value.password = await hashPassword(value.password)
 
     // Mengembalikan data user yang baru saja dibuat
     return value.password

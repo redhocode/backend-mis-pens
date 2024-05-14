@@ -6,6 +6,7 @@ interface Activity {
   date: string | null
   description: string | null
   link: string | null
+  image: string | null
   createdAt: Date
   updatedAt: Date
   userId: string | null
@@ -16,10 +17,12 @@ interface ActivityData {
   id: string
   title: string
   date: string
+  image: string
   description: string
   link: string
   userId: string
   username?: string
+  imageUrl: string
 }
 
 const findActifitys = async (): Promise<Activity[]> => {
@@ -36,24 +39,34 @@ const findActifitysById = async (id: string): Promise<Activity | null> => {
   return activity
 }
 
-const insertActivity = async (activityData: ActivityData): Promise<Activity> => {
-  //    const user = await prisma.user.findUnique({
-  //        where: {
-  //            id: activityData.userId,
-  //        },
-  //    })
-  const activity = await prisma.activity.create({
-    data: {
-      title: activityData.title,
-      date: activityData.date,
-      description: activityData.description,
+const insertActivity = async (activityData: ActivityData, userId: string): Promise<Activity> => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
 
-      link: activityData.link,
-      userId: activityData.userId
-      //    username: user?.username,
+    if (!user) {
+      throw new Error('User not found')
     }
-  })
-  return activity
+
+    const activity = await prisma.activity.create({
+      data: {
+        title: activityData.title,
+        date: activityData.date,
+        description: activityData.description,
+        image: activityData.image,
+        link: activityData.link,
+        userId: userId,
+        username: user.username
+      }
+    })
+
+    return activity
+  } catch (error: any) {
+    throw new Error(`Error inserting activity: ${error.message}`)
+  }
 }
 
 const editActivity = async (id: string, activityData: ActivityData): Promise<Activity> => {
@@ -64,6 +77,7 @@ const editActivity = async (id: string, activityData: ActivityData): Promise<Act
     data: {
       title: activityData.title,
       date: activityData.date,
+      image: activityData.image,
       description: activityData.description,
       link: activityData.link
     }

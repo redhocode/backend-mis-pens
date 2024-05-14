@@ -10,7 +10,7 @@ const createProductValidation = (playload) => {
         name: joi_1.default.string().required(),
         description: joi_1.default.string().required(),
         image: joi_1.default.string().required(),
-        price: joi_1.default.number().required(),
+        price: joi_1.default.number().required()
     });
     return schema.validate(playload);
 };

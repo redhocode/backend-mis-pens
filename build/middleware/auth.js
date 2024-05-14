@@ -1,15 +1,42 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.accessValidation = exports.requireUser = void 0;
+exports.accessValidation = exports.requiredUserAdministrasi = exports.requireUserAkademic = exports.requireAdmin = exports.requireUser = void 0;
 const jwt_1 = require("../utils/jwt");
 const requireUser = (req, res, next) => {
     const user = res.locals.user;
     if (!user) {
-        return res.status(403).send({ message: "User information is missing or invalid" });
+        return res.status(403).send({ message: 'User information is missing or invalid' });
     }
     next();
 };
 exports.requireUser = requireUser;
+const requireAdmin = (req, res, next) => {
+    const user = res.locals.user;
+    // Pastikan informasi pengguna ada dan rolenya adalah 'admin'
+    if (!user || user.role !== 'Admin') {
+        // Jika tidak memenuhi kriteria, kembalikan respons 403 Forbidden
+        return res.status(403).send({ message: 'User information is missing or invalid' });
+    }
+    // Jika memenuhi kriteria, lanjutkan ke middleware atau handler berikutnya
+    next();
+};
+exports.requireAdmin = requireAdmin;
+const requireUserAkademic = (req, res, next) => {
+    const user = res.locals.user;
+    if (!user || user.role !== 'Akademik') {
+        return res.status(403).send({ message: 'User information is missing or invalid' });
+    }
+    next();
+};
+exports.requireUserAkademic = requireUserAkademic;
+const requiredUserAdministrasi = (req, res, next) => {
+    const user = res.locals.user;
+    if (!user || user.role !== 'Administrasi') {
+        return res.status(403).send({ message: 'User information is missing or invalid' });
+    }
+    next();
+};
+exports.requiredUserAdministrasi = requiredUserAdministrasi;
 const accessValidation = (req, res, next) => {
     const validationReq = req;
     const { authorization } = validationReq.headers;

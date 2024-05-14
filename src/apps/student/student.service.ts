@@ -15,7 +15,7 @@ const getStudentById = async (id: string): Promise<Student | null> => {
   return student
 }
 
-const createStudent = async (newStudentData: StudentData): Promise<Student> => {
+const createStudent = async (newStudentData: StudentData, userId: string, receivedAwardId: string): Promise<Student> => {
   const { error, value } = createStudentValidation(newStudentData)
   if (error) {
     throw new Error(error.details[0].message)
@@ -25,7 +25,7 @@ const createStudent = async (newStudentData: StudentData): Promise<Student> => {
   const id = uuidv4() // Menggunakan UUID
   // const id = nanoid(); // Menggunakan nanoid
 
-  const student = await insertStudent({ ...newStudentData, id })
+  const student = await insertStudent({ ...newStudentData, id }, userId,receivedAwardId)
   return student
 }
 

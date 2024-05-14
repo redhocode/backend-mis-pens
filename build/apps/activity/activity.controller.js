@@ -1,6 +1,4 @@
 "use strict";
-// Layer untuk handle request dan response
-// Biasanya juga handle validasi body
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -17,12 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const actifity_service_1 = require("./actifity.service");
 const logger_1 = require("../../utils/logger");
-const activity_validation_1 = require("./activity.validation");
+const multer_1 = require("../../utils/multer");
+const multer_2 = __importDefault(require("multer"));
 const router = express_1.default.Router();
-router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const upload = (0, multer_2.default)({ storage: multer_1.storage });
+router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const activities = yield (0, actifity_service_1.getAllActivities)();
-        logger_1.logger.info("Get all activities success");
+        logger_1.logger.info('Get all activities success');
         res.status(200).send(activities);
     }
     catch (err) {
@@ -30,7 +30,7 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(400).send(err.message);
     }
 }));
-router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const activityId = req.params.id;
         const activity = yield (0, actifity_service_1.getActivityById)(activityId);
@@ -42,28 +42,32 @@ router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(400).send(err.message);
     }
 }));
-router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/', upload.single('image'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newActivityData = req.body;
-        const newStudentData = req.body;
-        // Tambahkan userId ke data mahasiswa sebelum membuatnya
-        const userId = req.userId;
-        newStudentData.userId = userId;
-        const { error } = (0, activity_validation_1.createActivityValidation)(newActivityData);
-        if (error) {
-            logger_1.logger.error(`Error validating activity data: ${error.message}`);
-            return res.status(422).send({ status: false, statusCode: 422, message: error.message });
+        const userId = req.userId; // Ensure userId has been correctly set in the authentication middleware
+        if (!userId) {
+            return res.status(401).json({ status: false, message: 'Unauthorized' });
         }
-        const activity = yield (0, actifity_service_1.createActivity)(newActivityData);
-        logger_1.logger.info("Activity created successfully");
-        res.status(200).send({ status: true, statusCode: 200, data: activity });
+        // Check if an image is uploaded
+        const image = req.file;
+        if (!image) {
+            return res.status(400).json({ status: false, message: 'No image uploaded' });
+        }
+        // Save the image URL to the activity data
+        const imageUrl = '/uploads/' + image.filename;
+        newActivityData.image = imageUrl;
+        // Create a new activity using the service
+        const activity = yield (0, actifity_service_1.createActivity)(newActivityData, userId);
+        // Send the response with the updated activity data
+        return res.status(201).json({ status: true, data: activity });
     }
     catch (error) {
-        logger_1.logger.error(`Error creating activity: ${error.message}`);
-        res.status(500).send({ status: false, statusCode: 500, message: "Internal server error" });
+        console.error(error);
+        return res.status(500).json({ status: false, message: 'Internal server error' });
     }
 }));
-router.delete("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const activityId = req.params.id;
         yield (0, actifity_service_1.deleteActivityById)(activityId);
@@ -75,19 +79,19 @@ router.delete("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(400).send(err.message);
     }
 }));
-router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const activityId = req.params.id;
     const activityData = req.body;
     if (!(activityData.image && activityData.description && activityData.title && activityData.date)) {
-        logger_1.logger.error("Some fields are missing");
-        return res.status(400).send("Some fields are missing");
+        logger_1.logger.error('Some fields are missing');
+        return res.status(400).send('Some fields are missing');
     }
     try {
         const activity = yield (0, actifity_service_1.editActivityById)(activityId, activityData);
         logger_1.logger.info(`Edit activity with id ${activityId} success`);
         res.send({
             data: activity,
-            message: "edit activity success",
+            message: 'edit activity success'
         });
     }
     catch (error) {
@@ -95,15 +99,21 @@ router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(400).send(error.message);
     }
 }));
-router.patch("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.patch('/:id', upload.single('image'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const activityId = req.params.id;
         const activityData = req.body;
+        // Check if an image is uploaded
+        const image = req.file;
+        if (image) {
+            // Save the updated image URL to the activity data
+            activityData.image = '/uploads/' + image.filename;
+        }
         const activity = yield (0, actifity_service_1.editActivityById)(activityId, activityData);
         logger_1.logger.info(`Edit activity with id ${activityId} success`);
         res.send({
             data: activity,
-            message: "edit activity success",
+            message: 'edit activity success'
         });
     }
     catch (error) {

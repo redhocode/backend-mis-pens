@@ -9,8 +9,8 @@ const pino_pretty_1 = __importDefault(require("pino-pretty"));
 const moment_1 = __importDefault(require("moment"));
 exports.logger = (0, pino_1.default)({
     base: {
-        pid: false,
+        pid: false
     },
-    timestamp: () => `,"time":"${(0, moment_1.default)().format()}"`,
+    timestamp: () => `,"time":"${(0, moment_1.default)().format()}"`
 }, (0, pino_pretty_1.default)());
 //# sourceMappingURL=logger.js.map

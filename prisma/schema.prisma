@@ -27,7 +27,7 @@ model User {
   id           String           @id @default(uuid())
   username     String        @unique
   password     String
-  // role         String    // Contoh: "admin", "user", dst.
+ role         String? 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   students     Student[] // Relasi ke mahasiswa yang diinputkan oleh pengguna
@@ -42,6 +42,7 @@ model Student {
   nrp       Int      @unique
   name      String
   major     String
+  image     String?
   year      Int
   ipk       Decimal @default(0.0)
   semester  Int
@@ -51,6 +52,9 @@ model Student {
   user      User?    @relation(fields: [userId], references: [id]) 
   userId    String?
   username  String?  // Menyimpan username pengguna
+  receivedAward   Scholarship? @relation(fields: [receivedAwardId], references: [id])
+  receivedAwardId String?
+  receivedAwardName String?
 }
 
 model Activity {
@@ -58,7 +62,7 @@ model Activity {
   title       String
   date String
   description String?
-
+  image       String?
   link        String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -72,12 +76,14 @@ model Scholarship {
   title       String
   date String
   description String?
+  image String?
   link        String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   user        User?    @relation(fields: [userId], references: [id])
   userId      String?
   username  String?  // Menyimpan username pengguna
+  awardedTo   Student[]
 }
 
 model Academic {

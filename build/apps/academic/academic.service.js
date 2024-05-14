@@ -16,7 +16,7 @@ const uuid_1 = require("uuid");
 const getAllAcademic = () => __awaiter(void 0, void 0, void 0, function* () {
     const academics = yield (0, academic_repository_1.findAcademics)();
     if (!academics) {
-        throw new Error("Academic not found");
+        throw new Error('Academic not found');
     }
     return academics;
 });
@@ -24,25 +24,25 @@ exports.getAllAcademic = getAllAcademic;
 const getAcademicById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const academic = yield (0, academic_repository_1.findAcademicById)(id);
     if (!academic) {
-        throw new Error("Academic not found");
+        throw new Error('Academic not found');
     }
     return academic;
 });
 exports.getAcademicById = getAcademicById;
-const createAcademic = (newAcademicData) => __awaiter(void 0, void 0, void 0, function* () {
+const createAcademic = (newAcademicData, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const { error, value } = (0, academic_validation_1.createAcademicValidation)(newAcademicData);
     if (error) {
         throw new Error(error.details[0].message);
     }
     const id = (0, uuid_1.v4)();
-    const academic = yield (0, academic_repository_1.insertAcademic)(Object.assign(Object.assign({}, newAcademicData), { id }));
+    const academic = yield (0, academic_repository_1.insertAcademic)(Object.assign(Object.assign({}, newAcademicData), { id }), userId);
     return academic;
 });
 exports.createAcademic = createAcademic;
 const deleteAcademicById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const academic = yield (0, academic_repository_1.findAcademicById)(id);
     if (!academic) {
-        throw new Error("Academic not found");
+        throw new Error('Academic not found');
     }
     yield (0, academic_repository_1.deleteAcademic)(id);
 });

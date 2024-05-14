@@ -16,13 +16,12 @@ const express_1 = __importDefault(require("express"));
 const user_service_1 = require("./user.service");
 const logger_1 = require("../../utils/logger");
 const user_validation_1 = require("./user.validation");
-const hashing_1 = require("../../utils/hashing");
 const jwt_1 = require("../../utils/jwt");
 const router = express_1.default.Router();
-router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield (0, user_service_1.getAllUsers)();
-        logger_1.logger.info("Get all users success");
+        logger_1.logger.info('Get all users success');
         res.status(200).send(users);
     }
     catch (err) {
@@ -30,7 +29,7 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(400).send(err.message);
     }
 }));
-router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.params.id;
         const user = yield (0, user_service_1.getUserById)(userId);
@@ -42,7 +41,7 @@ router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(400).send(err.message);
     }
 }));
-router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newUserData = req.body;
         const { error } = (0, user_validation_1.createUserValidation)(newUserData);
@@ -51,13 +50,13 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return res.status(422).send({ status: false, statusCode: 422, message: error.message });
         }
         // Hash password menggunakan fungsi yang sudah Anda buat
-        const hashedPassword = yield (0, hashing_1.hashPassword)(newUserData.password);
+        // const hashedPassword = await hashPassword(newUserData.password)
         // Buat objek user baru dengan password yang di-hash
-        const user = yield (0, user_service_1.createUser)(Object.assign(Object.assign({}, newUserData), { password: hashedPassword }));
+        const user = yield (0, user_service_1.createUser)(Object.assign({}, newUserData));
         // Autentikasi berhasil, buat token JWT
         const accessToken = (0, jwt_1.signJwt)({ userId: user.id }); // Menggunakan user.id sebagai payload
         const refreshToken = (0, jwt_1.createRefreshToken)({ userId: user.id }, process.env.JWT_REFRESH_EXPIRATION || '7d');
-        logger_1.logger.info("User created successfully");
+        logger_1.logger.info('User created successfully');
         res.status(200).send({ status: true, statusCode: 200, data: { user, accessToken, refreshToken } });
     }
     catch (error) {
@@ -65,7 +64,7 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(422).send({ status: false, statusCode: 422, message: error.message });
     }
 }));
-router.delete("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.params.id;
         yield (0, user_service_1.deleteUserById)(userId);
@@ -77,19 +76,19 @@ router.delete("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(400).send(err.message);
     }
 }));
-router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.id;
     const userData = req.body;
     if (!(userData.name && userData.email && userData.password)) {
-        logger_1.logger.error("Some fields are missing");
-        return res.status(400).send("Some fields are missing");
+        logger_1.logger.error('Some fields are missing');
+        return res.status(400).send('Some fields are missing');
     }
     try {
         const user = yield (0, user_service_1.editUserById)(userId, userData);
         logger_1.logger.info(`Edit user with id ${userId} success`);
         res.send({
             data: user,
-            message: "edit user success",
+            message: 'edit user success'
         });
     }
     catch (error) {
@@ -97,7 +96,7 @@ router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(400).send(error.message);
     }
 }));
-router.patch("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.patch('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.params.id;
         const userData = req.body;
@@ -105,7 +104,7 @@ router.patch("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* (
         logger_1.logger.info(`Edit user with id ${userId} success`);
         res.send({
             data: user,
-            message: "edit user success",
+            message: 'edit user success'
         });
     }
     catch (error) {

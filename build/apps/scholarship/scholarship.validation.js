@@ -10,9 +10,10 @@ const createScholarshipValidation = (playload) => {
         title: joi_1.default.string().required(),
         date: joi_1.default.date().required(),
         description: joi_1.default.string().required(),
-        // image: Joi.binary().optional(),
+        image: joi_1.default.binary().optional(),
         link: joi_1.default.string().optional(),
         userId: joi_1.default.number().optional(),
+        imageUrl: joi_1.default.string().optional()
     });
     return schema.validate(playload);
 };

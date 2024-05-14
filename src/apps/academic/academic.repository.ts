@@ -26,23 +26,30 @@ const findAcademics = async (): Promise<Academic[]> => {
   return academics
 }
 
-const insertAcademic = async (academicData: AcademicData): Promise<Academic> => {
-  // const user = await prisma.user.findUnique({
-  //     where: {
-  //         id: academicData.userId,
-  //     },
-  // })
-  const academic = await prisma.academic.create({
-    data: {
-      title: academicData.title,
-      date: academicData.date,
-      description: academicData.description,
-      link: academicData.link,
-      userId: academicData.userId
-      // username: user?.username,
+const insertAcademic = async (academicData: AcademicData, userId: string): Promise<Academic> => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
+    if (!user) {
+      throw new Error('User not found')
     }
-  })
-  return academic
+    const academic = await prisma.academic.create({
+      data: {
+        title: academicData.title,
+        date: academicData.date,
+        description: academicData.description,
+        link: academicData.link,
+        userId: userId,
+        username: user.username
+      }
+    })
+    return academic
+  } catch (error) {
+    throw new Error(`Error inserting academic: ${error}`)
+  }
 }
 const updateAcademic = async (id: string, academicData: AcademicData): Promise<Academic> => {
   const academic = await prisma.academic.update({

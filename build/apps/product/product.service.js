@@ -23,7 +23,7 @@ exports.getAllProducts = getAllProducts;
 const getProductById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const product = yield (0, product_repository_1.findProductById)(id);
     if (!product) {
-        throw new Error("Product not found");
+        throw new Error('Product not found');
     }
     return product;
 });

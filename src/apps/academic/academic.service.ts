@@ -17,13 +17,13 @@ const getAcademicById = async (id: string): Promise<Academic> => {
   }
   return academic
 }
-const createAcademic = async (newAcademicData: AcademicData): Promise<Academic> => {
+const createAcademic = async (newAcademicData: AcademicData, userId: string): Promise<Academic> => {
   const { error, value } = createAcademicValidation(newAcademicData)
   if (error) {
     throw new Error(error.details[0].message)
   }
   const id = uuidv4()
-  const academic = await insertAcademic({ ...newAcademicData, id })
+  const academic = await insertAcademic({ ...newAcademicData, id }, userId)
   return academic
 }
 

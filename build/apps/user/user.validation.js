@@ -9,6 +9,7 @@ const createUserValidation = (playload) => {
     const schema = joi_1.default.object({
         username: joi_1.default.string().required(),
         password: joi_1.default.string().required(),
+        role: joi_1.default.string().required()
     });
     return schema.validate(playload);
 };
@@ -17,13 +18,14 @@ const createSessionValidation = (playload) => {
     const schema = joi_1.default.object({
         username: joi_1.default.string().required(),
         password: joi_1.default.string().required(),
+        role: joi_1.default.string().required()
     });
     return schema.validate(playload);
 };
 exports.createSessionValidation = createSessionValidation;
 const refreshSessionValidation = (playload) => {
     const schema = joi_1.default.object({
-        refresh_token: joi_1.default.string().required(),
+        refresh_token: joi_1.default.string().required()
     });
     return schema.validate(playload);
 };

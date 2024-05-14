@@ -11,7 +11,9 @@ export const createStudentValidation = (playload: StudentData) => {
     semester: Joi.number().required(),
     status: Joi.string().required(),
     ipk: Joi.number().optional(),
-    userId: Joi.string().optional()
+    userId: Joi.string().optional(),
+    image: Joi.binary().allow('').optional(),
+    receivedAwardId: Joi.string().allow('').optional()
   })
   return schema.validate(playload)
 }

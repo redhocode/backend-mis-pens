@@ -22,8 +22,8 @@ exports.findUsers = findUsers;
 const findUsersById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield db_1.default.user.findUnique({
         where: {
-            id,
-        },
+            id
+        }
     });
     return user;
 });
@@ -32,20 +32,20 @@ const insertUser = (userData, accessToken) => __awaiter(void 0, void 0, void 0, 
     const user = yield db_1.default.user.create({
         data: {
             username: userData.username,
-            password: userData.password,
-        },
+            password: userData.password
+        }
     });
     return user;
 });
 const editUser = (id, userData) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield db_1.default.user.update({
         where: {
-            id,
+            id
         },
         data: {
             username: userData.username,
-            password: userData.password,
-        },
+            password: userData.password
+        }
     });
     return user;
 });
@@ -53,16 +53,16 @@ exports.editUser = editUser;
 const deleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
     yield db_1.default.user.delete({
         where: {
-            id,
-        },
+            id
+        }
     });
 });
 exports.deleteUser = deleteUser;
 const findUserByusername = (username) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield db_1.default.user.findUnique({
         where: {
-            username,
-        },
+            username
+        }
     });
     return user;
 });

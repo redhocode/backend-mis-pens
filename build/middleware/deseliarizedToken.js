@@ -7,11 +7,18 @@ const deserializedToken = (req, res, next) => {
     if (!accessToken) {
         return next();
     }
+    // const token: any = verifyJwt(accessToken)
     const token = (0, jwt_1.verifyJwt)(accessToken);
-    if (token.decoded) {
+    if (token.decoded && token.decoded.id) {
+        // Set userId dari token ke objek req
+        req.userId = token.decoded.id;
         res.locals.user = token.decoded;
+        return next();
     }
-    next();
+    if (token.expired) {
+        return next();
+    }
+    return next();
 };
 exports.default = deserializedToken;
 //# sourceMappingURL=deseliarizedToken.js.map

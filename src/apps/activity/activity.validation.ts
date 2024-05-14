@@ -8,8 +8,9 @@ export const createActivityValidation = (playload: ActivityData) => {
     date: Joi.date().required(),
     description: Joi.string().required(),
     image: Joi.binary().optional(),
-    link: Joi.string().optional(),
-    userId: Joi.number().optional()
+    link: Joi.string().allow('').optional(),
+    userId: Joi.number().optional(),
+    imageUrl: Joi.string().optional()
   })
   return schema.validate(playload)
 }

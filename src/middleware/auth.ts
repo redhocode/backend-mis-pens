@@ -9,6 +9,33 @@ export const requireUser = (req: Request, res: Response, next: NextFunction) => 
   next()
 }
 
+export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+  const user = res.locals.user
+
+  // Pastikan informasi pengguna ada dan rolenya adalah 'admin'
+  if (!user || user.role !== 'Admin') {
+    // Jika tidak memenuhi kriteria, kembalikan respons 403 Forbidden
+    return res.status(403).send({ message: 'User information is missing or invalid' })
+  }
+
+  // Jika memenuhi kriteria, lanjutkan ke middleware atau handler berikutnya
+  next()
+}
+export const requireUserAkademic = (req: Request, res: Response, next: NextFunction) => {
+  const user = res.locals.user
+  if (!user || user.role !== 'Akademik') {
+    return res.status(403).send({ message: 'User information is missing or invalid' })
+  }
+  next()
+}
+export const requiredUserAdministrasi = (req: Request, res: Response, next: NextFunction) => {
+  const user = res.locals.user
+  if (!user || user.role !== 'Administrasi') {
+    return res.status(403).send({ message: 'User information is missing or invalid' })
+  }
+  next()
+}
+
 export const accessValidation = (req: Request, res: Response, next: NextFunction) => {
   const validationReq = req as ValidationRequest
   const { authorization } = validationReq.headers

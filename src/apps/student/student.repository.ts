@@ -14,17 +14,22 @@ interface Student {
   updatedAt: Date
   userId: string | null
   username: string | null
+  image: string | null
+  receivedAwardId: string | null
+  receivedAwardName: string | null
 }
 
 export interface StudentData {
   id: string
-  nrp: number
+  nrp: string
   name: string
   major: string
-  year: number
-  semester: number
+  year: string
+  semester: string
   status: string
-  ipk: Decimal
+  ipk: string
+  image: string
+
 }
 
 const findStudents = async (): Promise<Student[]> => {
@@ -41,40 +46,95 @@ const findStudentsById = async (id: string): Promise<Student | null> => {
   return student
 }
 
-const insertStudent = async (studentData: StudentData): Promise<Student> => {
-  // Pastikan userId ada dalam data mahasiswa
-
-  const student = await prisma.student.create({
-    data: {
-      nrp: studentData.nrp,
-      name: studentData.name,
-      major: studentData.major,
-      ipk: studentData.ipk,
-      year: studentData.year,
-      semester: studentData.semester,
-      status: studentData.status
+const insertStudent = async (studentData: StudentData, userId: string, receivedAwardId: string): Promise<Student> => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
+    if (!user) {
+      throw new Error('User not found')
     }
-  })
-  return student
+
+    // Mengambil data beasiswa berdasarkan receivedAwardId
+      let scholarshipTitle: string | null = null
+      // Jika receivedAwardId tidak kosong, ambil data beasiswa
+      if (receivedAwardId) {
+        const scholarship = await prisma.scholarship.findUnique({
+          where: {
+            id: receivedAwardId
+          }
+        })
+
+        if (!scholarship) {
+          throw new Error('Scholarship not found')
+        }
+        scholarshipTitle = scholarship.title
+      }
+
+    // Mengonversi nilai string menjadi integer di sisi backend
+    const parsedYear = parseInt(studentData.year)
+    const parsedSemester = parseInt(studentData.semester)
+
+    const student = await prisma.student.create({
+      data: {
+        nrp: parseInt(studentData.nrp), // Mengonversi nrp dari string menjadi integer
+        name: studentData.name,
+        major: studentData.major,
+        year: parsedYear,
+        semester: parsedSemester,
+        status: studentData.status,
+        ipk: parseFloat(studentData.ipk),
+        image: studentData.image,
+        userId: userId,
+        username: user.username,
+        receivedAwardId: receivedAwardId || null,
+        receivedAwardName: scholarshipTitle
+      }
+    })
+    return student
+  } catch (error: any) {
+    throw new Error(`Error inserting student: ${error.message}`)
+  }
 }
 
-const editStudent = async (id: string, studentData: StudentData): Promise<Student> => {
-  const student = await prisma.student.update({
-    where: {
-      id
-    },
-    data: {
-      nrp: studentData.nrp,
+
+const editStudent = async (id: string, studentData: StudentData, receivedAwardId?: string, receivedAwardName?: string): Promise<Student> => {
+  try {
+    const dataToUpdate: any = {
+      nrp: parseInt(studentData.nrp),
       name: studentData.name,
       major: studentData.major,
-      year: studentData.year,
-      semester: studentData.semester,
+      year: parseInt(studentData.year),
+      semester: parseInt(studentData.semester),
       status: studentData.status,
-      ipk: studentData.ipk
+      image: studentData.image,
+      ipk: parseFloat(studentData.ipk)
     }
-  })
-  return student
+
+  
+    if (receivedAwardId !== undefined) {
+      dataToUpdate.receivedAwardId = receivedAwardId
+    }
+
+    if (receivedAwardName !== undefined) {
+      dataToUpdate.receivedAwardName = receivedAwardName
+    }
+
+    const student = await prisma.student.update({
+      where: {
+        id
+      },
+      data: dataToUpdate
+    })
+    return student
+  } catch (error: any) {
+    throw new Error(`Error editing student: ${error.message}`)
+  }
 }
+
+
 
 const deleteStudent = async (id: string): Promise<void> => {
   await prisma.student.delete({

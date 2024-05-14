@@ -8,13 +8,18 @@ const deserializedToken = (req: Request, res: Response, next: NextFunction) => {
     return next()
   }
 
+  // const token: any = verifyJwt(accessToken)
   const token: any = verifyJwt(accessToken)
-
-  if (token.decoded) {
+  if (token.decoded && token.decoded.id) {
+    // Set userId dari token ke objek req
+    req.userId = token.decoded.id
     res.locals.user = token.decoded
+    return next()
   }
-
-  next()
+  if (token.expired) {
+    return next()
+  }
+  return next()
 }
 
 export default deserializedToken
@@ -23,7 +28,7 @@ export default deserializedToken
 declare global {
   namespace Express {
     interface Request {
-      userId?: String
+      userId?: string
       user?: any // Properti user dengan tipe data yang sesuai, misalnya { id: number }
     }
   }

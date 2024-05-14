@@ -17,10 +17,10 @@ const academic_service_1 = require("./academic.service");
 const logger_1 = require("../../utils/logger");
 const academic_validation_1 = require("./academic.validation");
 const router = express_1.default.Router();
-router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const academic = yield (0, academic_service_1.getAllAcademic)();
-        logger_1.logger.info("Get all academic success");
+        logger_1.logger.info('Get all academic success');
         res.status(200).send(academic);
     }
     catch (err) {
@@ -28,7 +28,7 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(400).send(err.message);
     }
 }));
-router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const academicId = req.params.id;
         const academic = yield (0, academic_service_1.getAcademicById)(academicId);
@@ -40,27 +40,29 @@ router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(400).send(err.message);
     }
 }));
-router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newAcademicData = req.body;
-        const newStudentData = req.body;
+        // Pastikan userId telah ditetapkan dengan benar
         const userId = req.userId;
-        newStudentData.userId = userId;
+        if (!userId) {
+            throw new Error('User ID is not valid.');
+        }
         const { error } = (0, academic_validation_1.createAcademicValidation)(newAcademicData);
         if (error) {
             logger_1.logger.error(`Error validating academic data: ${error.message}`);
             return res.status(422).send({ status: false, statusCode: 422, message: error.message });
         }
-        const academic = yield (0, academic_service_1.createAcademic)(newAcademicData);
-        logger_1.logger.info("Academic created successfully");
+        const academic = yield (0, academic_service_1.createAcademic)(newAcademicData, userId);
+        logger_1.logger.info('Academic created successfully');
         res.status(200).send({ status: true, statusCode: 200, data: academic });
     }
     catch (error) {
         logger_1.logger.error(`Error creating academic: ${error.message}`);
-        res.status(500).send({ status: false, statusCode: 500, message: "Internal server error" });
+        res.status(500).send({ status: false, statusCode: 500, message: 'Internal server error' });
     }
 }));
-router.delete("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const academicId = req.params.id;
         yield (0, academic_service_1.deleteAcademicById)(academicId);
@@ -72,7 +74,7 @@ router.delete("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(400).send(err.message);
     }
 }));
-router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const academicId = req.params.id;
         const newAcademicData = req.body;
@@ -87,10 +89,10 @@ router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
     catch (error) {
         logger_1.logger.error(`Error editing academic: ${error.message}`);
-        res.status(500).send({ status: false, statusCode: 500, message: "Internal server error" });
+        res.status(500).send({ status: false, statusCode: 500, message: 'Internal server error' });
     }
 }));
-router.patch("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.patch('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const academicId = req.params.id;
         const newAcademicData = req.body;
@@ -105,7 +107,7 @@ router.patch("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
     catch (error) {
         logger_1.logger.error(`Error editing academic: ${error.message}`);
-        res.status(500).send({ status: false, statusCode: 500, message: "Internal server error" });
+        res.status(500).send({ status: false, statusCode: 500, message: 'Internal server error' });
     }
 }));
 exports.default = router;

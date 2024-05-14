@@ -1,18 +1,19 @@
-// Layer untuk handle request dan response
-// Biasanya juga handle validasi body
-
 import express, { Request, Response } from 'express'
 import {
-  getAllActivities,
-  getActivityById,
   createActivity,
   deleteActivityById,
-  editActivityById
+  editActivityById,
+  getAllActivities,
+  getActivityById
 } from './actifity.service'
 import { logger } from '../../utils/logger'
-import { createActivityValidation } from './activity.validation'
-
+import { ActivityData } from './activity.repository'
+import { storage } from '../../utils/multer'
+import multer from 'multer'
+import { requiredUserAdministrasi, requireUserAkademic, requireAdmin } from '../../middleware/auth'
 const router = express.Router()
+
+const upload = multer({ storage: storage })
 
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -37,29 +38,37 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 })
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/',requireAdmin||requiredUserAdministrasi, upload.single('image'), async (req, res) => {
   try {
-    const newActivityData = req.body
-    const newStudentData = req.body
+    const newActivityData: ActivityData = req.body
+    const userId = req.userId // Ensure userId has been correctly set in the authentication middleware
 
-    // Tambahkan userId ke data mahasiswa sebelum membuatnya
-    const userId = req.userId
-    newStudentData.userId = userId
-    const { error } = createActivityValidation(newActivityData)
-    if (error) {
-      logger.error(`Error validating activity data: ${error.message}`)
-      return res.status(422).send({ status: false, statusCode: 422, message: error.message })
+    if (!userId) {
+      return res.status(401).json({ status: false, message: 'Unauthorized' })
     }
-    const activity = await createActivity(newActivityData)
-    logger.info('Activity created successfully')
-    res.status(200).send({ status: true, statusCode: 200, data: activity })
-  } catch (error: any) {
-    logger.error(`Error creating activity: ${error.message}`)
-    res.status(500).send({ status: false, statusCode: 500, message: 'Internal server error' })
+
+    // Check if an image is uploaded
+    const image = req.file
+    if (!image) {
+      return res.status(400).json({ status: false, message: 'No image uploaded' })
+    }
+
+    // Save the image URL to the activity data
+    const imageUrl = '/uploads/' + image.filename
+    newActivityData.image = imageUrl
+
+    // Create a new activity using the service
+    const activity = await createActivity(newActivityData, userId)
+
+    // Send the response with the updated activity data
+    return res.status(201).json({ status: true, data: activity })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ status: false, message: 'Internal server error' })
   }
 })
 
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', requireAdmin || requiredUserAdministrasi, async (req: Request, res: Response) => {
   try {
     const activityId: string = req.params.id
     await deleteActivityById(activityId)
@@ -79,6 +88,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     logger.error('Some fields are missing')
     return res.status(400).send('Some fields are missing')
   }
+
   try {
     const activity = await editActivityById(activityId, activityData)
     logger.info(`Edit activity with id ${activityId} success`)
@@ -92,20 +102,33 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 })
 
-router.patch('/:id', async (req: Request, res: Response) => {
-  try {
-    const activityId: string = req.params.id
-    const activityData = req.body
-    const activity = await editActivityById(activityId, activityData)
-    logger.info(`Edit activity with id ${activityId} success`)
-    res.send({
-      data: activity,
-      message: 'edit activity success'
-    })
-  } catch (error: any) {
-    logger.error(error)
-    res.status(400).send(error.message)
+router.patch(
+  '/:id',
+  requireAdmin || requiredUserAdministrasi,
+  upload.single('image'),
+  async (req: Request, res: Response) => {
+    try {
+      const activityId: string = req.params.id
+      const activityData = req.body
+
+      // Check if an image is uploaded
+      const image = req.file
+      if (image) {
+        // Save the updated image URL to the activity data
+        activityData.image = '/uploads/' + image.filename
+      }
+
+      const activity = await editActivityById(activityId, activityData)
+      logger.info(`Edit activity with id ${activityId} success`)
+      res.send({
+        data: activity,
+        message: 'edit activity success'
+      })
+    } catch (error: any) {
+      logger.error(error)
+      res.status(400).send(error.message)
+    }
   }
-})
+)
 
 export default router

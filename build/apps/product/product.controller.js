@@ -19,10 +19,10 @@ const product_service_1 = require("./product.service");
 const logger_1 = require("../../utils/logger");
 const producr_validation_1 = require("./producr.validation");
 const router = express_1.default.Router();
-router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const products = yield (0, product_service_1.getAllProducts)();
-        logger_1.logger.info("Get all products success");
+        logger_1.logger.info('Get all products success');
         res.status(200).send(products);
     }
     catch (err) {
@@ -30,7 +30,7 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(400).send(err.message);
     }
 }));
-router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const productId = parseInt(req.params.id);
         const product = yield (0, product_service_1.getProductById)(productId);
@@ -42,7 +42,7 @@ router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(400).send(err.message);
     }
 }));
-router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newProductData = req.body;
         // Lakukan validasi pada data produk
@@ -54,41 +54,41 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         // Jika validasi berhasil, lanjutkan dengan membuat produk baru
         const product = yield (0, product_service_1.createProduct)(newProductData);
-        logger_1.logger.info("Product created successfully");
+        logger_1.logger.info('Product created successfully');
         // Kirimkan respon dengan status 200 dan data produk yang berhasil dibuat
         res.status(200).send({ status: true, statusCode: 200, data: product });
     }
     catch (error) {
         // Tangani kesalahan yang terjadi
         logger_1.logger.error(`Error creating product: ${error.message}`);
-        res.status(500).send({ status: false, statusCode: 500, message: "Internal server error" });
+        res.status(500).send({ status: false, statusCode: 500, message: 'Internal server error' });
     }
 }));
-router.delete("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const productId = parseInt(req.params.id);
         yield (0, product_service_1.deleteProductById)(productId);
         logger_1.logger.info(`Delete product with id ${productId} success`);
-        res.send("product deleted");
+        res.send('product deleted');
     }
     catch (error) {
         logger_1.logger.error(error);
         res.status(400).send(error.message);
     }
 }));
-router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const productId = parseInt(req.params.id);
     const productData = req.body;
     if (!(productData.image && productData.description && productData.name && productData.price)) {
-        logger_1.logger.error("Some fields are missing");
-        return res.status(400).send("Some fields are missing");
+        logger_1.logger.error('Some fields are missing');
+        return res.status(400).send('Some fields are missing');
     }
     try {
         const product = yield (0, product_service_1.editProductById)(productId, productData);
         logger_1.logger.info(`Edit product with id ${productId} success`);
         res.send({
             data: product,
-            message: "edit product success",
+            message: 'edit product success'
         });
     }
     catch (error) {
@@ -96,7 +96,7 @@ router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(400).send(error.message);
     }
 }));
-router.patch("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.patch('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const productId = parseInt(req.params.id);
         const productData = req.body;
@@ -104,7 +104,7 @@ router.patch("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* (
         logger_1.logger.info(`Edit product with id ${productId} success`);
         res.send({
             data: product,
-            message: "edit product success",
+            message: 'edit product success'
         });
     }
     catch (err) {

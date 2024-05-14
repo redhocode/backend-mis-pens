@@ -38,10 +38,10 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(422).send({ status: false, statusCode: 422, message: error.message })
     }
     // Hash password menggunakan fungsi yang sudah Anda buat
-    const hashedPassword = await hashPassword(newUserData.password)
+    // const hashedPassword = await hashPassword(newUserData.password)
 
     // Buat objek user baru dengan password yang di-hash
-    const user = await createUser({ ...newUserData, password: hashedPassword })
+    const user = await createUser({ ...newUserData })
     // Autentikasi berhasil, buat token JWT
     const accessToken = signJwt({ userId: user.id }) // Menggunakan user.id sebagai payload
     const refreshToken = createRefreshToken({ userId: user.id }, process.env.JWT_REFRESH_EXPIRATION || '7d')

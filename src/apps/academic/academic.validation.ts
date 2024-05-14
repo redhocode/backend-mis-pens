@@ -7,7 +7,7 @@ export const createAcademicValidation = (playload: AcademicData) => {
     title: Joi.string().required(),
     date: Joi.date().required(),
     description: Joi.string().required(),
-    link: Joi.string().optional(),
+    link: Joi.string().allow('').optional(),
     userId: Joi.string().optional()
   })
   return schema.validate(playload)

@@ -19,11 +19,12 @@ const getAllStudents = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.getAllStudents = getAllStudents;
 const getStudentById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    // Menggunakan tipe data string untuk UUID atau nanoid
     const student = yield (0, student_repository_1.findStudentsById)(id);
     return student;
 });
 exports.getStudentById = getStudentById;
-const createStudent = (newStudentData) => __awaiter(void 0, void 0, void 0, function* () {
+const createStudent = (newStudentData, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const { error, value } = (0, student_validation_1.createStudentValidation)(newStudentData);
     if (error) {
         throw new Error(error.details[0].message);
@@ -31,18 +32,20 @@ const createStudent = (newStudentData) => __awaiter(void 0, void 0, void 0, func
     // Menghasilkan UUID atau nanoid
     const id = (0, uuid_1.v4)(); // Menggunakan UUID
     // const id = nanoid(); // Menggunakan nanoid
-    const student = yield (0, student_repository_1.insertStudent)(Object.assign(Object.assign({}, newStudentData), { id }));
+    const student = yield (0, student_repository_1.insertStudent)(Object.assign(Object.assign({}, newStudentData), { id }), userId);
     return student;
 });
 exports.createStudent = createStudent;
 const deleteStudentById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    // Menggunakan tipe data string untuk UUID atau nanoid
     yield (0, student_repository_1.deleteStudent)(id);
 });
 exports.deleteStudentById = deleteStudentById;
 const editStudentById = (id, studentData) => __awaiter(void 0, void 0, void 0, function* () {
+    // Menggunakan tipe data string untuk UUID atau nanoid
     const student = yield (0, student_repository_1.findStudentsById)(id);
     if (!student) {
-        throw new Error("Student not found");
+        throw new Error('Student not found');
     }
     const updatedStudent = yield (0, student_repository_1.editStudent)(id, studentData);
     return updatedStudent;

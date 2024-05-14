@@ -3,6 +3,7 @@ import prisma from '../../db'
 export interface UserData {
   username: string
   password: string
+  role?: string
 }
 
 export interface User {

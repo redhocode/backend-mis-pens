@@ -8,6 +8,7 @@ import {
 } from './academic.service'
 import { logger } from '../../utils/logger'
 import { createAcademicValidation } from './academic.validation'
+import { AcademicData } from './academic.repository'
 
 const router = express.Router()
 
@@ -36,17 +37,19 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const newAcademicData = req.body
-    const newStudentData = req.body
+    const newAcademicData: AcademicData = req.body
 
-    const userId = req.userId
-    newStudentData.userId = userId
+    // Pastikan userId telah ditetapkan dengan benar
+    const userId: string = req.userId as string
+    if (!userId) {
+      throw new Error('User ID is not valid.')
+    }
     const { error } = createAcademicValidation(newAcademicData)
     if (error) {
       logger.error(`Error validating academic data: ${error.message}`)
       return res.status(422).send({ status: false, statusCode: 422, message: error.message })
     }
-    const academic = await createAcademic(newAcademicData)
+    const academic = await createAcademic(newAcademicData, userId)
     logger.info('Academic created successfully')
     res.status(200).send({ status: true, statusCode: 200, data: academic })
   } catch (error: any) {

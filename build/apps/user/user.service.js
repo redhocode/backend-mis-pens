@@ -25,7 +25,7 @@ exports.getAllUsers = getAllUsers;
 const getUserById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield (0, user_repository_1.findUsersById)(id);
     if (!user) {
-        throw new Error("User not found");
+        throw new Error('User not found');
     }
     return user;
 });
@@ -37,7 +37,7 @@ const createUser = (userData) => __awaiter(void 0, void 0, void 0, function* () 
     }
     try {
         // Menggunakan password yang sudah di-hash
-        value.password = yield (0, hashing_1.hashPassword)(value.password);
+        // value.password = await hashPassword(value.password)
         // Mengembalikan data user yang baru saja dibuat
         return value.password;
     }

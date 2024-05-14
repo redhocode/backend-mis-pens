@@ -22,42 +22,61 @@ exports.findStudents = findStudents;
 const findStudentsById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const student = yield db_1.default.student.findUnique({
         where: {
-            id,
-        },
+            id
+        }
     });
     return student;
 });
 exports.findStudentsById = findStudentsById;
-const insertStudent = (studentData) => __awaiter(void 0, void 0, void 0, function* () {
-    // Pastikan userId ada dalam data mahasiswa
-    const student = yield db_1.default.student.create({
-        data: {
-            nrp: studentData.nrp,
-            name: studentData.name,
-            major: studentData.major,
-            ipk: studentData.ipk,
-            year: studentData.year,
-            semester: studentData.semester,
-            status: studentData.status,
-        },
-    });
-    return student;
+const insertStudent = (studentData, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield db_1.default.user.findUnique({
+            where: {
+                id: userId
+            }
+        });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        // Mengonversi nilai string menjadi integer di sisi backend
+        const parsedYear = parseInt(studentData.year);
+        const parsedSemester = parseInt(studentData.semester);
+        const student = yield db_1.default.student.create({
+            data: {
+                nrp: parseInt(studentData.nrp), // Mengonversi nrp dari string menjadi integer
+                name: studentData.name,
+                major: studentData.major,
+                year: parsedYear,
+                semester: parsedSemester,
+                status: studentData.status,
+                ipk: parseFloat(studentData.ipk),
+                image: studentData.image,
+                userId: userId,
+                username: user.username
+            }
+        });
+        return student;
+    }
+    catch (error) {
+        throw new Error(`Error inserting student: ${error.message}`);
+    }
 });
 exports.insertStudent = insertStudent;
 const editStudent = (id, studentData) => __awaiter(void 0, void 0, void 0, function* () {
     const student = yield db_1.default.student.update({
         where: {
-            id,
+            id
         },
         data: {
-            nrp: studentData.nrp,
+            nrp: parseInt(studentData.nrp),
             name: studentData.name,
             major: studentData.major,
-            year: studentData.year,
-            semester: studentData.semester,
+            year: parseInt(studentData.year),
+            semester: parseInt(studentData.semester),
             status: studentData.status,
-            ipk: studentData.ipk,
-        },
+            image: studentData.image,
+            ipk: parseFloat(studentData.ipk)
+        }
     });
     return student;
 });
@@ -65,8 +84,8 @@ exports.editStudent = editStudent;
 const deleteStudent = (id) => __awaiter(void 0, void 0, void 0, function* () {
     yield db_1.default.student.delete({
         where: {
-            id,
-        },
+            id
+        }
     });
 });
 exports.deleteStudent = deleteStudent;

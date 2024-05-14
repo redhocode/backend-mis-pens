@@ -27,7 +27,7 @@ const getScholarshipById = async (id: string): Promise<Scholarship> => {
   return scholarship
 }
 
-const createScholarship = async (newScholarshipData: ScholarshipData): Promise<Scholarship> => {
+const createScholarship = async (newScholarshipData: ScholarshipData, userId: string): Promise<Scholarship> => {
   const { error, value } = createScholarshipValidation(newScholarshipData)
   if (error) {
     throw new Error(error.details[0].message)
@@ -35,7 +35,7 @@ const createScholarship = async (newScholarshipData: ScholarshipData): Promise<S
   // Menghasilkan UUID atau nanoid
   const id = uuidv4() // Menggunakan UUID
   // const id = nanoid(); // Menggunakan nanoid
-  const scholarship = await insertScholarship({ ...newScholarshipData, id })
+  const scholarship = await insertScholarship({ ...newScholarshipData, id }, userId)
   return scholarship
 }
 const deleteScholarshipById = async (id: string): Promise<void> => {
