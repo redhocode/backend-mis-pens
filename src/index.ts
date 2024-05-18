@@ -13,9 +13,7 @@ import { requireAdmin, requireUser } from './middleware/auth'
 import academicController from './apps/academic/academic.controller'
 import scholarshipController from './apps/scholarship/scholarship.controller'
 import { AuthRouter } from './apps/user/auth.router'
-import path from 'path'
-import { storage } from './utils/multer'
-import multer from 'multer'
+
 dotenv.config()
 // Load environment variables based on environment (development or production)
 if (process.env.NODE_ENV === 'development') {
@@ -50,7 +48,7 @@ app.get('/api', (req: Request, res: Response) => {
 app.use('/products', productController)
 app.use('/academics', academicController)
 app.use(`/students`, studentController)
-app.use('/users', AuthRouter)
+app.use('/users',AuthRouter)
 app.use('/activitys', activityController)
 app.use('/scholarships', scholarshipController)
 app.listen(PORT, () => {
