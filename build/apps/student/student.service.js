@@ -24,7 +24,7 @@ const getStudentById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return student;
 });
 exports.getStudentById = getStudentById;
-const createStudent = (newStudentData, userId) => __awaiter(void 0, void 0, void 0, function* () {
+const createStudent = (newStudentData, userId, receivedAwardId) => __awaiter(void 0, void 0, void 0, function* () {
     const { error, value } = (0, student_validation_1.createStudentValidation)(newStudentData);
     if (error) {
         throw new Error(error.details[0].message);
@@ -32,7 +32,7 @@ const createStudent = (newStudentData, userId) => __awaiter(void 0, void 0, void
     // Menghasilkan UUID atau nanoid
     const id = (0, uuid_1.v4)(); // Menggunakan UUID
     // const id = nanoid(); // Menggunakan nanoid
-    const student = yield (0, student_repository_1.insertStudent)(Object.assign(Object.assign({}, newStudentData), { id }), userId);
+    const student = yield (0, student_repository_1.insertStudent)(Object.assign(Object.assign({}, newStudentData), { id }), userId, receivedAwardId);
     return student;
 });
 exports.createStudent = createStudent;

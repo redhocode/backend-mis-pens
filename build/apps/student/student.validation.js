@@ -15,7 +15,8 @@ const createStudentValidation = (playload) => {
         status: joi_1.default.string().required(),
         ipk: joi_1.default.number().optional(),
         userId: joi_1.default.string().optional(),
-        image: joi_1.default.binary().optional()
+        image: joi_1.default.binary().allow('').optional(),
+        receivedAwardId: joi_1.default.string().allow('').optional()
     });
     return schema.validate(playload);
 };

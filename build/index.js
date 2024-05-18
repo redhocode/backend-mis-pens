@@ -41,7 +41,7 @@ app.use(deseliarizedToken_1.default);
 // Set additional CORS headers for preflight requests
 app.options('*', (0, cors_1.default)());
 app.get('/api', (req, res) => {
-    res.send('Hello World!');
+    res.send('Hello World! this is backend-mis-pens');
 });
 app.use('/products', product_controller_1.default);
 app.use('/academics', academic_controller_1.default);

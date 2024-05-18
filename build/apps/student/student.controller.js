@@ -54,18 +54,35 @@ router.post('/', auth_1.requireAdmin, upload.single('image'), (req, res) => __aw
         if (!userId) {
             throw new Error('User ID is not valid.');
         }
+        // Mendapatkan receivedAwardId dari body request, jika ada
+        const receivedAwardId = req.body.receivedAwardId;
+        // Lakukan pengecekan apakah receivedAwardId ada atau tidak
+        if (receivedAwardId === undefined) {
+            logger_1.logger.info('Received Award ID is not provided, continuing without it.');
+        }
+        // if (!receivedAwardId) {
+        //   throw new Error('Received Award ID is required.')
+        // }
         const image = req.file;
-        if (!image) {
-            throw new Error('Image is not valid.');
+        // Lakukan pengecekan apakah image ada atau tidak
+        if (image === undefined) {
+            logger_1.logger.info('Image is not provided, continuing without it.');
+            // Jika image tidak ada, atur imageUrl menjadi null atau string kosong
+            newStudentData.image = ''; // Atau bisa juga null, tergantung preferensi Anda
         }
-        const imageUrl = '/uploads/' + image.filename;
-        newStudentData.image = imageUrl;
+        else {
+            const imageUrl = '/uploads/' + image.filename;
+            newStudentData.image = imageUrl;
+        }
         const { error } = (0, student_validation_1.createStudentValidation)(newStudentData);
-        if (error) {
-            logger_1.logger.error(`Error validating student data: ${error.message}`);
-            return res.status(422).send({ status: false, statusCode: 422, message: error.message });
+        if (receivedAwardId !== undefined) {
+            const { error } = (0, student_validation_1.createStudentValidation)(newStudentData);
+            if (error) {
+                logger_1.logger.error(`Error validating student data: ${error.message}`);
+                return res.status(422).send({ status: false, statusCode: 422, message: error.message });
+            }
         }
-        const student = yield (0, student_service_1.createStudent)(newStudentData, userId);
+        const student = yield (0, student_service_1.createStudent)(newStudentData, userId, receivedAwardId || '');
         logger_1.logger.info('Student created successfully');
         res.status(200).send({ status: true, statusCode: 200, data: student });
     }
@@ -74,7 +91,7 @@ router.post('/', auth_1.requireAdmin, upload.single('image'), (req, res) => __aw
         res.status(400).send({ status: false, statusCode: 400, message: error.message });
     }
 }));
-router.delete('/:id', auth_1.requireAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const studentId = req.params.id;
         yield (0, student_service_1.deleteStudentById)(studentId);
@@ -86,7 +103,7 @@ router.delete('/:id', auth_1.requireAdmin, (req, res) => __awaiter(void 0, void 
         res.status(400).send(err.message);
     }
 }));
-router.put('/:id', auth_1.requireAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const studentId = req.params.id;
     const studentData = req.body;
     if (!studentData.name && studentData.major && studentData.year && studentData.semester && studentData.status) {
@@ -111,14 +128,17 @@ router.patch('/:id', auth_1.requireAdmin, upload.single('image'), (req, res) => 
         const studentId = req.params.id;
         const studentData = req.body;
         const image = req.file;
+        // Jika ada file gambar yang diunggah, update path gambar dalam data mahasiswa
         if (image) {
             studentData.image = '/uploads/' + image.filename;
         }
+        // Panggil fungsi editStudentById untuk mengedit mahasiswa berdasarkan ID
         const student = yield (0, student_service_1.editStudentById)(studentId, studentData);
         logger_1.logger.info(`Edit student with id ${studentId} success`);
+        // Kirim respons dengan data mahasiswa yang telah diubah
         res.send({
             data: student,
-            message: 'edit student success'
+            message: 'Edit student success'
         });
     }
     catch (error) {

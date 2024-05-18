@@ -11,7 +11,7 @@ const createActivityValidation = (playload) => {
         date: joi_1.default.date().required(),
         description: joi_1.default.string().required(),
         image: joi_1.default.binary().optional(),
-        link: joi_1.default.string().optional(),
+        link: joi_1.default.string().allow('').optional(),
         userId: joi_1.default.number().optional(),
         imageUrl: joi_1.default.string().optional()
     });

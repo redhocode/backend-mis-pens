@@ -34,14 +34,19 @@ const deleteStudentById = async (id: string): Promise<void> => {
   await deleteStudent(id)
 }
 
-const editStudentById = async (id: string, studentData: StudentData): Promise<Student> => {
-  // Menggunakan tipe data string untuk UUID atau nanoid
+const editStudentById = async (
+  id: string,
+  studentData: StudentData,
+  userId: string,
+  receivedAwardId: string
+): Promise<Student> => {
   const student = await findStudentsById(id)
   if (!student) {
     throw new Error('Student not found')
   }
-  const updatedStudent = await editStudent(id, studentData)
+  const updatedStudent = await editStudent(id, studentData, userId, receivedAwardId)
   return updatedStudent
 }
+
 
 export { getAllStudents, getStudentById, createStudent, deleteStudentById, editStudentById }

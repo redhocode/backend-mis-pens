@@ -17,6 +17,7 @@ const actifity_service_1 = require("./actifity.service");
 const logger_1 = require("../../utils/logger");
 const multer_1 = require("../../utils/multer");
 const multer_2 = __importDefault(require("multer"));
+const auth_1 = require("../../middleware/auth");
 const router = express_1.default.Router();
 const upload = (0, multer_2.default)({ storage: multer_1.storage });
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -42,7 +43,7 @@ router.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(400).send(err.message);
     }
 }));
-router.post('/', upload.single('image'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/', auth_1.requireAdmin || auth_1.requiredUserAdministrasi, upload.single('image'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newActivityData = req.body;
         const userId = req.userId; // Ensure userId has been correctly set in the authentication middleware
@@ -67,7 +68,7 @@ router.post('/', upload.single('image'), (req, res) => __awaiter(void 0, void 0,
         return res.status(500).json({ status: false, message: 'Internal server error' });
     }
 }));
-router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/:id', auth_1.requireAdmin || auth_1.requiredUserAdministrasi, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const activityId = req.params.id;
         yield (0, actifity_service_1.deleteActivityById)(activityId);
@@ -99,7 +100,7 @@ router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(400).send(error.message);
     }
 }));
-router.patch('/:id', upload.single('image'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.patch('/:id', auth_1.requireAdmin || auth_1.requiredUserAdministrasi, upload.single('image'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const activityId = req.params.id;
         const activityData = req.body;

@@ -28,7 +28,7 @@ const findStudentsById = (id) => __awaiter(void 0, void 0, void 0, function* () 
     return student;
 });
 exports.findStudentsById = findStudentsById;
-const insertStudent = (studentData, userId) => __awaiter(void 0, void 0, void 0, function* () {
+const insertStudent = (studentData, userId, receivedAwardId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield db_1.default.user.findUnique({
             where: {
@@ -37,6 +37,20 @@ const insertStudent = (studentData, userId) => __awaiter(void 0, void 0, void 0,
         });
         if (!user) {
             throw new Error('User not found');
+        }
+        // Mengambil data beasiswa berdasarkan receivedAwardId
+        let scholarshipTitle = null;
+        // Jika receivedAwardId tidak kosong, ambil data beasiswa
+        if (receivedAwardId) {
+            const scholarship = yield db_1.default.scholarship.findUnique({
+                where: {
+                    id: receivedAwardId
+                }
+            });
+            if (!scholarship) {
+                throw new Error('Scholarship not found');
+            }
+            scholarshipTitle = scholarship.title;
         }
         // Mengonversi nilai string menjadi integer di sisi backend
         const parsedYear = parseInt(studentData.year);
@@ -52,7 +66,9 @@ const insertStudent = (studentData, userId) => __awaiter(void 0, void 0, void 0,
                 ipk: parseFloat(studentData.ipk),
                 image: studentData.image,
                 userId: userId,
-                username: user.username
+                username: user.username,
+                receivedAwardId: receivedAwardId || null,
+                receivedAwardName: scholarshipTitle
             }
         });
         return student;
@@ -62,12 +78,9 @@ const insertStudent = (studentData, userId) => __awaiter(void 0, void 0, void 0,
     }
 });
 exports.insertStudent = insertStudent;
-const editStudent = (id, studentData) => __awaiter(void 0, void 0, void 0, function* () {
-    const student = yield db_1.default.student.update({
-        where: {
-            id
-        },
-        data: {
+const editStudent = (id, studentData, receivedAwardId, receivedAwardName) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const dataToUpdate = {
             nrp: parseInt(studentData.nrp),
             name: studentData.name,
             major: studentData.major,
@@ -76,9 +89,24 @@ const editStudent = (id, studentData) => __awaiter(void 0, void 0, void 0, funct
             status: studentData.status,
             image: studentData.image,
             ipk: parseFloat(studentData.ipk)
+        };
+        if (receivedAwardId !== undefined) {
+            dataToUpdate.receivedAwardId = receivedAwardId;
         }
-    });
-    return student;
+        if (receivedAwardName !== undefined) {
+            dataToUpdate.receivedAwardName = receivedAwardName;
+        }
+        const student = yield db_1.default.student.update({
+            where: {
+                id
+            },
+            data: dataToUpdate
+        });
+        return student;
+    }
+    catch (error) {
+        throw new Error(`Error editing student: ${error.message}`);
+    }
 });
 exports.editStudent = editStudent;
 const deleteStudent = (id) => __awaiter(void 0, void 0, void 0, function* () {
