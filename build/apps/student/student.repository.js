@@ -78,34 +78,57 @@ const insertStudent = (studentData, userId, receivedAwardId) => __awaiter(void 0
     }
 });
 exports.insertStudent = insertStudent;
-const editStudent = (id, studentData, receivedAwardId, receivedAwardName) => __awaiter(void 0, void 0, void 0, function* () {
+const editStudent = (id, studentData, userId, receivedAwardId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const dataToUpdate = {
-            nrp: parseInt(studentData.nrp),
-            name: studentData.name,
-            major: studentData.major,
-            year: parseInt(studentData.year),
-            semester: parseInt(studentData.semester),
-            status: studentData.status,
-            image: studentData.image,
-            ipk: parseFloat(studentData.ipk)
-        };
-        if (receivedAwardId !== undefined) {
-            dataToUpdate.receivedAwardId = receivedAwardId;
+        const user = yield db_1.default.user.findUnique({
+            where: {
+                id: userId
+            }
+        });
+        if (!user) {
+            throw new Error('User not found');
         }
-        if (receivedAwardName !== undefined) {
-            dataToUpdate.receivedAwardName = receivedAwardName;
+        // Mengambil data beasiswa berdasarkan receivedAwardId
+        let scholarshipTitle = null;
+        // Jika receivedAwardId tidak kosong, ambil data beasiswa
+        if (receivedAwardId) {
+            const scholarship = yield db_1.default.scholarship.findUnique({
+                where: {
+                    id: receivedAwardId
+                }
+            });
+            if (!scholarship) {
+                throw new Error('Scholarship not found');
+            }
+            scholarshipTitle = scholarship.title;
         }
+        // Mengonversi nilai string menjadi integer di sisi backend
+        const parsedYear = parseInt(studentData.year);
+        const parsedSemester = parseInt(studentData.semester);
+        // Update student data
         const student = yield db_1.default.student.update({
             where: {
-                id
+                id: id // Ensure to use the id parameter to locate the student
             },
-            data: dataToUpdate
+            data: {
+                nrp: parseInt(studentData.nrp), // Convert nrp from string to integer
+                name: studentData.name,
+                major: studentData.major,
+                year: parsedYear,
+                semester: parsedSemester,
+                status: studentData.status,
+                ipk: parseFloat(studentData.ipk), // Ensure IPK is a float
+                image: studentData.image,
+                userId: userId,
+                username: user.username,
+                receivedAwardId: receivedAwardId || null,
+                receivedAwardName: scholarshipTitle
+            }
         });
         return student;
     }
     catch (error) {
-        throw new Error(`Error editing student: ${error.message}`);
+        throw new Error(`Error updating student: ${error.message}`);
     }
 });
 exports.editStudent = editStudent;

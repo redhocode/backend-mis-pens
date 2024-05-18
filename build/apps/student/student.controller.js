@@ -103,37 +103,43 @@ router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(400).send(err.message);
     }
 }));
-router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const studentId = req.params.id;
-    const studentData = req.body;
-    if (!studentData.name && studentData.major && studentData.year && studentData.semester && studentData.status) {
-        logger_1.logger.error('Some fields are missing');
-        return res.status(400).send('Some fields are missing');
-    }
-    try {
-        const student = yield (0, student_service_1.editStudentById)(studentId, studentData);
-        logger_1.logger.info(`Edit student with id ${studentId} success`);
-        res.send({
-            data: student,
-            message: 'edit student success'
-        });
-    }
-    catch (error) {
-        logger_1.logger.error(error);
-        res.status(400).send(error.message);
-    }
-}));
+// router.put('/:id', async (req: Request, res: Response) => {
+//   const studentId: string = req.params.id
+//   const studentData = req.body
+//   if (!studentData.name && studentData.major && studentData.year && studentData.semester && studentData.status) {
+//     logger.error('Some fields are missing')
+//     return res.status(400).send('Some fields are missing')
+//   }
+//   try {
+//     const student = await editStudentById(studentId, studentData)
+//     logger.info(`Edit student with id ${studentId} success`)
+//     res.send({
+//       data: student,
+//       message: 'edit student success'
+//     })
+//   } catch (error: any) {
+//     logger.error(error)
+//     res.status(400).send(error.message)
+//   }
+// })
 router.patch('/:id', auth_1.requireAdmin, upload.single('image'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const studentId = req.params.id;
         const studentData = req.body;
         const image = req.file;
+        // Assuming `req.userId` contains the logged-in user information
+        const userId = req.userId;
+        if (!userId) {
+            throw new Error('User ID is not valid.');
+        }
+        // Mendapatkan receivedAwardId dari body request, jika ada
+        const receivedAwardId = req.body.receivedAwardId || '';
         // Jika ada file gambar yang diunggah, update path gambar dalam data mahasiswa
         if (image) {
             studentData.image = '/uploads/' + image.filename;
         }
         // Panggil fungsi editStudentById untuk mengedit mahasiswa berdasarkan ID
-        const student = yield (0, student_service_1.editStudentById)(studentId, studentData);
+        const student = yield (0, student_service_1.editStudentById)(studentId, studentData, userId, receivedAwardId);
         logger_1.logger.info(`Edit student with id ${studentId} success`);
         // Kirim respons dengan data mahasiswa yang telah diubah
         res.send({
@@ -143,7 +149,7 @@ router.patch('/:id', auth_1.requireAdmin, upload.single('image'), (req, res) => 
     }
     catch (error) {
         logger_1.logger.error(error);
-        res.status(400).send(error.message);
+        res.status(400).send({ message: error.message });
     }
 }));
 exports.default = router;
