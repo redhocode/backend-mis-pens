@@ -15,6 +15,7 @@ import scholarshipController from './apps/scholarship/scholarship.controller'
 import { AuthRouter } from './apps/user/auth.router'
 
 // Load environment variables based on environment (development or production)
+require('dotenv').config()
 const envFile = process.env.NODE_ENV === 'development' ? '.env.dev' : '.env.prod';
 dotenv.config({ path: envFile });
 const app: Application = express()
