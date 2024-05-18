@@ -92,32 +92,41 @@ router.delete('/:id', async (req: Request, res: Response) => {
   }
 })
 
-router.put('/:id', async (req: Request, res: Response) => {
-  const studentId: string = req.params.id
-  const studentData = req.body
+// router.put('/:id', async (req: Request, res: Response) => {
+//   const studentId: string = req.params.id
+//   const studentData = req.body
 
-  if (!studentData.name && studentData.major && studentData.year && studentData.semester && studentData.status) {
-    logger.error('Some fields are missing')
-    return res.status(400).send('Some fields are missing')
-  }
-  try {
-    const student = await editStudentById(studentId, studentData)
-    logger.info(`Edit student with id ${studentId} success`)
-    res.send({
-      data: student,
-      message: 'edit student success'
-    })
-  } catch (error: any) {
-    logger.error(error)
-    res.status(400).send(error.message)
-  }
-})
+//   if (!studentData.name && studentData.major && studentData.year && studentData.semester && studentData.status) {
+//     logger.error('Some fields are missing')
+//     return res.status(400).send('Some fields are missing')
+//   }
+//   try {
+//     const student = await editStudentById(studentId, studentData)
+//     logger.info(`Edit student with id ${studentId} success`)
+//     res.send({
+//       data: student,
+//       message: 'edit student success'
+//     })
+//   } catch (error: any) {
+//     logger.error(error)
+//     res.status(400).send(error.message)
+//   }
+// })
 
-router.patch('/:id',requireAdmin, upload.single('image'), async (req: Request, res: Response) => {
+router.patch('/:id', requireAdmin, upload.single('image'), async (req: Request, res: Response) => {
   try {
     const studentId: string = req.params.id
-    const studentData = req.body
+    const studentData: StudentData = req.body
     const image = req.file
+
+    // Assuming `req.userId` contains the logged-in user information
+    const userId: string = req.userId as string
+    if (!userId) {
+      throw new Error('User ID is not valid.')
+    }
+
+    // Mendapatkan receivedAwardId dari body request, jika ada
+    const receivedAwardId: string = req.body.receivedAwardId || ''
 
     // Jika ada file gambar yang diunggah, update path gambar dalam data mahasiswa
     if (image) {
@@ -125,7 +134,7 @@ router.patch('/:id',requireAdmin, upload.single('image'), async (req: Request, r
     }
 
     // Panggil fungsi editStudentById untuk mengedit mahasiswa berdasarkan ID
-    const student = await editStudentById(studentId, studentData)
+    const student = await editStudentById(studentId, studentData, userId, receivedAwardId)
 
     logger.info(`Edit student with id ${studentId} success`)
 
@@ -136,7 +145,7 @@ router.patch('/:id',requireAdmin, upload.single('image'), async (req: Request, r
     })
   } catch (error: any) {
     logger.error(error)
-    res.status(400).send(error.message)
+    res.status(400).send({ message: error.message })
   }
 })
 
