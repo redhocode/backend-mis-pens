@@ -100,39 +100,70 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
 }
 
 
-const editStudent = async (id: string, studentData: StudentData, receivedAwardId?: string, receivedAwardName?: string): Promise<Student> => {
+const editStudent = async (
+  id: string,
+  studentData: StudentData,
+  userId: string,
+  receivedAwardId: string
+): Promise<Student> => {
   try {
-    const dataToUpdate: any = {
-      nrp: parseInt(studentData.nrp),
-      name: studentData.name,
-      major: studentData.major,
-      year: parseInt(studentData.year),
-      semester: parseInt(studentData.semester),
-      status: studentData.status,
-      image: studentData.image,
-      ipk: parseFloat(studentData.ipk)
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
+    if (!user) {
+      throw new Error('User not found')
     }
 
-  
-    if (receivedAwardId !== undefined) {
-      dataToUpdate.receivedAwardId = receivedAwardId
+    // Mengambil data beasiswa berdasarkan receivedAwardId
+    let scholarshipTitle: string | null = null
+    // Jika receivedAwardId tidak kosong, ambil data beasiswa
+    if (receivedAwardId) {
+      const scholarship = await prisma.scholarship.findUnique({
+        where: {
+          id: receivedAwardId
+        }
+      })
+
+      if (!scholarship) {
+        throw new Error('Scholarship not found')
+      }
+      scholarshipTitle = scholarship.title
     }
 
-    if (receivedAwardName !== undefined) {
-      dataToUpdate.receivedAwardName = receivedAwardName
-    }
+    // Mengonversi nilai string menjadi integer di sisi backend
+    const parsedYear = parseInt(studentData.year)
+    const parsedSemester = parseInt(studentData.semester)
 
+    // Update student data
     const student = await prisma.student.update({
       where: {
-        id
+        id: id // Ensure to use the id parameter to locate the student
       },
-      data: dataToUpdate
+      data: {
+        nrp: parseInt(studentData.nrp), // Convert nrp from string to integer
+        name: studentData.name,
+        major: studentData.major,
+        year: parsedYear,
+        semester: parsedSemester,
+        status: studentData.status,
+        ipk: parseFloat(studentData.ipk), // Ensure IPK is a float
+        image: studentData.image,
+        userId: userId,
+        username: user.username,
+        receivedAwardId: receivedAwardId || null,
+        receivedAwardName: scholarshipTitle
+      }
     })
     return student
   } catch (error: any) {
-    throw new Error(`Error editing student: ${error.message}`)
+    throw new Error(`Error updating student: ${error.message}`)
   }
 }
+
+
+
 
 
 
