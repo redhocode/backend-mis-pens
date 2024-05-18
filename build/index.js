@@ -17,14 +17,9 @@ const deseliarizedToken_1 = __importDefault(require("./middleware/deseliarizedTo
 const academic_controller_1 = __importDefault(require("./apps/academic/academic.controller"));
 const scholarship_controller_1 = __importDefault(require("./apps/scholarship/scholarship.controller"));
 const auth_router_1 = require("./apps/user/auth.router");
-dotenv_1.default.config();
 // Load environment variables based on environment (development or production)
-if (process.env.NODE_ENV === 'development') {
-    dotenv_1.default.config({ path: '.env.dev' });
-}
-else {
-    dotenv_1.default.config({ path: '.env.prod' });
-}
+const envFile = process.env.NODE_ENV === 'development' ? '.env.dev' : '.env.prod';
+dotenv_1.default.config({ path: envFile });
 const app = (0, express_1.default)();
 const PORT = process.env.PORT;
 app.use(body_parser_1.default.json({ limit: '50mb' }));
