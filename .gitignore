@@ -3,11 +3,10 @@
 .env
 .env.dev
 /coverage
-
-/bulid
+data
+build
 /dist
 
 DS_Store
 
 .package-lock.json
-    

@@ -16,8 +16,8 @@ import { AuthRouter } from './apps/user/auth.router'
 
 // Load environment variables based on environment (development or production)
 require('dotenv').config()
-const envFile = process.env.NODE_ENV === 'development' ? '.env.dev' : '.env.prod';
-dotenv.config({ path: envFile });
+const envFile = process.env.NODE_ENV === 'development' ? '.env.dev' : '.env.prod'
+dotenv.config({ path: envFile })
 const app: Application = express()
 const PORT = process.env.PORT
 
@@ -45,7 +45,7 @@ app.get('/api', (req: Request, res: Response) => {
 app.use('/products', productController)
 app.use('/academics', academicController)
 app.use(`/students`, studentController)
-app.use('/users',AuthRouter)
+app.use('/users', AuthRouter)
 app.use('/activitys', activityController)
 app.use('/scholarships', scholarshipController)
 app.listen(PORT, () => {

@@ -149,5 +149,4 @@ router.patch('/:id', requireAdmin, upload.single('image'), async (req: Request, 
   }
 })
 
-
 export default router

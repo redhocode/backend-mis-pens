@@ -29,7 +29,6 @@ export interface StudentData {
   status: string
   ipk: string
   image: string
-
 }
 
 const findStudents = async (): Promise<Student[]> => {
@@ -58,20 +57,20 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
     }
 
     // Mengambil data beasiswa berdasarkan receivedAwardId
-      let scholarshipTitle: string | null = null
-      // Jika receivedAwardId tidak kosong, ambil data beasiswa
-      if (receivedAwardId) {
-        const scholarship = await prisma.scholarship.findUnique({
-          where: {
-            id: receivedAwardId
-          }
-        })
-
-        if (!scholarship) {
-          throw new Error('Scholarship not found')
+    let scholarshipTitle: string | null = null
+    // Jika receivedAwardId tidak kosong, ambil data beasiswa
+    if (receivedAwardId) {
+      const scholarship = await prisma.scholarship.findUnique({
+        where: {
+          id: receivedAwardId
         }
-        scholarshipTitle = scholarship.title
+      })
+
+      if (!scholarship) {
+        throw new Error('Scholarship not found')
       }
+      scholarshipTitle = scholarship.title
+    }
 
     // Mengonversi nilai string menjadi integer di sisi backend
     const parsedYear = parseInt(studentData.year)
@@ -98,7 +97,6 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
     throw new Error(`Error inserting student: ${error.message}`)
   }
 }
-
 
 const editStudent = async (
   id: string,
@@ -161,11 +159,6 @@ const editStudent = async (
     throw new Error(`Error updating student: ${error.message}`)
   }
 }
-
-
-
-
-
 
 const deleteStudent = async (id: string): Promise<void> => {
   await prisma.student.delete({

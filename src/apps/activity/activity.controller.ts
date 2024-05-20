@@ -38,7 +38,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 })
 
-router.post('/',requireAdmin||requiredUserAdministrasi, upload.single('image'), async (req, res) => {
+router.post('/', requireAdmin || requiredUserAdministrasi, upload.single('image'), async (req, res) => {
   try {
     const newActivityData: ActivityData = req.body
     const userId = req.userId // Ensure userId has been correctly set in the authentication middleware

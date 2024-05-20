@@ -1,4 +1,3 @@
-
 services:
   api:
     build:
@@ -8,7 +7,7 @@ services:
       - ./:/usr/src/app
       - /usr/src/app/node_modules
     ports:
-      - "3000:3000"
+      - '3000:3000'
     env_file:
       - .env.prod
     command: sh -c "npx prisma generate && npm run start"

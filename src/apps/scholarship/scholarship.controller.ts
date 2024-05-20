@@ -41,7 +41,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 })
 
-router.post('/', requireAdmin || requireUserAkademic,upload.single('image'), async (req: Request, res: Response) => {
+router.post('/', requireAdmin || requireUserAkademic, upload.single('image'), async (req: Request, res: Response) => {
   try {
     const newScholarshipData: ScholarshipData = req.body
 
@@ -53,11 +53,11 @@ router.post('/', requireAdmin || requireUserAkademic,upload.single('image'), asy
 
     // Check if an image is uploaded
     const image = req.file
-    if(image === undefined) {
+    if (image === undefined) {
       logger.info('Image is not provided, continuing without it.')
       // Jika image tidak ada, atur imageUrl menjadi null atau string kosong
       newScholarshipData.image = '' // Atau bisa juga null, tergantung preferensi Anda
-    }else {
+    } else {
       const imageUrl = '/uploads/' + image.filename
       newScholarshipData.image = imageUrl
     }
@@ -76,45 +76,37 @@ router.post('/', requireAdmin || requireUserAkademic,upload.single('image'), asy
   }
 })
 
-router.delete(
-  '/:id',
-  requireAdmin || requireUserAkademic,
-  async (req: Request, res: Response) => {
-    try {
-      const scholarshipId: string = req.params.id
-      await deleteScholarshipById(scholarshipId)
-      logger.info(`Delete scholarship with id ${scholarshipId} success`)
-      res.status(200).send(`Delete scholarship with id ${scholarshipId} success`)
-    } catch (err: any) {
-      logger.error(err)
-      res.status(400).send(err.message)
-    }
-  }
-)
-
-router.put(
-  '/:id',
-  requireAdmin || requireUserAkademic,
-  async (req: Request, res: Response) => {
+router.delete('/:id', requireAdmin || requireUserAkademic, async (req: Request, res: Response) => {
+  try {
     const scholarshipId: string = req.params.id
-    const scholarshipData = req.body
-    if (!(scholarshipData.image && scholarshipData.description && scholarshipData.title && scholarshipData.date)) {
-      logger.error('Some fields are missing')
-      return res.status(400).send('Some fields are missing')
-    }
-    try {
-      const scholarship = await editScholarshipById(scholarshipId, scholarshipData)
-      logger.info(`Edit scholarship with id ${scholarshipId} success`)
-      res.send({
-        data: scholarship,
-        message: 'edit scholarship success'
-      })
-    } catch (error: any) {
-      logger.error(error)
-      res.status(400).send(error.message)
-    }
+    await deleteScholarshipById(scholarshipId)
+    logger.info(`Delete scholarship with id ${scholarshipId} success`)
+    res.status(200).send(`Delete scholarship with id ${scholarshipId} success`)
+  } catch (err: any) {
+    logger.error(err)
+    res.status(400).send(err.message)
   }
-)
+})
+
+router.put('/:id', requireAdmin || requireUserAkademic, async (req: Request, res: Response) => {
+  const scholarshipId: string = req.params.id
+  const scholarshipData = req.body
+  if (!(scholarshipData.image && scholarshipData.description && scholarshipData.title && scholarshipData.date)) {
+    logger.error('Some fields are missing')
+    return res.status(400).send('Some fields are missing')
+  }
+  try {
+    const scholarship = await editScholarshipById(scholarshipId, scholarshipData)
+    logger.info(`Edit scholarship with id ${scholarshipId} success`)
+    res.send({
+      data: scholarship,
+      message: 'edit scholarship success'
+    })
+  } catch (error: any) {
+    logger.error(error)
+    res.status(400).send(error.message)
+  }
+})
 
 router.patch(
   '/:id',

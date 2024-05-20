@@ -15,7 +15,11 @@ const getStudentById = async (id: string): Promise<Student | null> => {
   return student
 }
 
-const createStudent = async (newStudentData: StudentData, userId: string, receivedAwardId: string): Promise<Student> => {
+const createStudent = async (
+  newStudentData: StudentData,
+  userId: string,
+  receivedAwardId: string
+): Promise<Student> => {
   const { error, value } = createStudentValidation(newStudentData)
   if (error) {
     throw new Error(error.details[0].message)
@@ -25,7 +29,7 @@ const createStudent = async (newStudentData: StudentData, userId: string, receiv
   const id = uuidv4() // Menggunakan UUID
   // const id = nanoid(); // Menggunakan nanoid
 
-  const student = await insertStudent({ ...newStudentData, id }, userId,receivedAwardId)
+  const student = await insertStudent({ ...newStudentData, id }, userId, receivedAwardId)
   return student
 }
 
@@ -47,6 +51,5 @@ const editStudentById = async (
   const updatedStudent = await editStudent(id, studentData, userId, receivedAwardId)
   return updatedStudent
 }
-
 
 export { getAllStudents, getStudentById, createStudent, deleteStudentById, editStudentById }

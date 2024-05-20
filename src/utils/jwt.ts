@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 import { valid } from 'joi'
 // import { findUserByUsername } from 'src/apps/user/auth.service'
 // Memuat variabel lingkungan dari file .env.prod
-dotenv.config();
+dotenv.config()
 
 // Fungsi untuk menandatangani token JWT menggunakan kunci pribadi
 export const signJwt = (payload: object, options?: jwt.SignOptions | undefined) => {
