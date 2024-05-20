@@ -1,0 +1,17 @@
+# prisma-project/docker-compose.yml
+version: '3.9'
+services:
+  db-dev:
+    image: postgres
+    restart: always
+    ports:
+      - '5434:5432'
+    environment:
+      POSTGRES_USER: godcode
+      POSTGRES_PASSWORD: godcode
+      POSTGRES_DB: db_mispens
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+volumes:
+  postgres:

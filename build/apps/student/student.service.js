@@ -41,13 +41,12 @@ const deleteStudentById = (id) => __awaiter(void 0, void 0, void 0, function* ()
     yield (0, student_repository_1.deleteStudent)(id);
 });
 exports.deleteStudentById = deleteStudentById;
-const editStudentById = (id, studentData) => __awaiter(void 0, void 0, void 0, function* () {
-    // Menggunakan tipe data string untuk UUID atau nanoid
+const editStudentById = (id, studentData, userId, receivedAwardId) => __awaiter(void 0, void 0, void 0, function* () {
     const student = yield (0, student_repository_1.findStudentsById)(id);
     if (!student) {
         throw new Error('Student not found');
     }
-    const updatedStudent = yield (0, student_repository_1.editStudent)(id, studentData);
+    const updatedStudent = yield (0, student_repository_1.editStudent)(id, studentData, userId, receivedAwardId);
     return updatedStudent;
 });
 exports.editStudentById = editStudentById;
