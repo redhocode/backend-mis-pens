@@ -13,7 +13,8 @@ export const createStudentValidation = (playload: StudentData) => {
     ipk: Joi.number().optional(),
     userId: Joi.string().optional(),
     image: Joi.binary().allow('').optional(),
-    receivedAwardId: Joi.string().allow('').optional()
+    receivedAwardId: Joi.string().allow('').optional(),
+    receivedAwardName: Joi.string().allow('').optional()
   })
   return schema.validate(playload)
 }
