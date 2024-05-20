@@ -2,12 +2,12 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import { valid } from 'joi'
 // import { findUserByUsername } from 'src/apps/user/auth.service'
-
-dotenv.config()
+// Memuat variabel lingkungan dari file .env.prod
+dotenv.config();
 
 // Fungsi untuk menandatangani token JWT menggunakan kunci pribadi
 export const signJwt = (payload: object, options?: jwt.SignOptions | undefined) => {
-  const privateKey = process.env.JWT_PRIVATE as string
+  const privateKey = (process.env.JWT_PRIVATE || '').replace(/\\n/g, '\n')
   return jwt.sign(payload, privateKey, {
     ...(options && options),
     algorithm: 'RS256'

@@ -7,10 +7,11 @@ exports.createRefreshToken = exports.verifyJwt = exports.signJwt = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 // import { findUserByUsername } from 'src/apps/user/auth.service'
+// Memuat variabel lingkungan dari file .env.prod
 dotenv_1.default.config();
 // Fungsi untuk menandatangani token JWT menggunakan kunci pribadi
 const signJwt = (payload, options) => {
-    const privateKey = process.env.JWT_PRIVATE;
+    const privateKey = (process.env.JWT_PRIVATE || '').replace(/\\n/g, '\n');
     return jsonwebtoken_1.default.sign(payload, privateKey, Object.assign(Object.assign({}, (options && options)), { algorithm: 'RS256' }));
 };
 exports.signJwt = signJwt;

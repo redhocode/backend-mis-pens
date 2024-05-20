@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx tsc && dotenv -e .env.prod node build/index.js",
-    "dev": "npx dotenv -e .env.dev npx nodemon",
+    "start": "NODE_ENV=production npx tsc && node build/index.js",
+    "dev": "NODE_ENV=development npx nodemon",
+    "generate-and-prod": "npx prisma generate && npm run start",
     "build": "npx tsc",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit",

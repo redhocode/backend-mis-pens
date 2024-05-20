@@ -18,6 +18,7 @@ const academic_controller_1 = __importDefault(require("./apps/academic/academic.
 const scholarship_controller_1 = __importDefault(require("./apps/scholarship/scholarship.controller"));
 const auth_router_1 = require("./apps/user/auth.router");
 // Load environment variables based on environment (development or production)
+require('dotenv').config();
 const envFile = process.env.NODE_ENV === 'development' ? '.env.dev' : '.env.prod';
 dotenv_1.default.config({ path: envFile });
 const app = (0, express_1.default)();

@@ -1,20 +1,28 @@
-# Menggunakan image Node.js versi 20
-FROM node:20-alpine
+# Stage 1: Build
+FROM node:18-buster as builder
 
-# Menetapkan direktori kerja di dalam container
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Menyalin package.json dan package-lock.json
 COPY package*.json ./
-
-# Menginstal dependensi
+COPY prisma ./prisma/
 RUN npm install
 
-# Menyalin semua file ke container
 COPY . .
-
-# Membuild proyek TypeScript
+# Copy .env.prod to Docker image
+COPY .env.prod .env
+RUN npx prisma generate
 RUN npm run build
 
-# Memulai aplikasi
-CMD ["npm", "start"]
+# Stage 2: Production
+FROM node:18-buster as production
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/build ./build
+COPY --from=builder /usr/src/app/prisma ./prisma
+COPY --from=builder /usr/src/app/.env .env
+
+# Set environment variables
+ENV JWT_PRIVATE=$JWT_PRIVATE
+CMD ["node", "build/index.js"]
