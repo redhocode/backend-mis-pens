@@ -11,6 +11,7 @@ import { ActivityData } from './activity.repository'
 import { storage } from '../../utils/multer'
 import multer from 'multer'
 import { requiredUserAdministrasi, requireUserAkademic, requireAdmin } from '../../middleware/auth'
+import { createActivityValidation } from './activity.validation'
 const router = express.Router()
 
 const upload = multer({ storage: storage })
@@ -49,17 +50,23 @@ router.post('/', requireAdmin || requiredUserAdministrasi, upload.single('image'
 
     // Check if an image is uploaded
     const image = req.file
-    if (!image) {
-      return res.status(400).json({ status: false, message: 'No image uploaded' })
+    if (image === undefined) {
+      logger.info('Image is not provided, continuing without it.')
+      // Jika image tidak ada, atur imageUrl menjadi null atau string kosong
+      newActivityData.image = '' // Atau bisa juga null, tergantung preferensi Anda
+    } else {
+      const imageUrl = '/uploads/' + image.filename
+      newActivityData.image = imageUrl
     }
 
-    // Save the image URL to the activity data
-    const imageUrl = '/uploads/' + image.filename
-    newActivityData.image = imageUrl
-
+    const { error} = createActivityValidation(newActivityData)
+    if (error) {
+      logger.error(`Error validation Activity data: ${error.details[0].message}`)
+      return res.status(422).json({ status: false, message: error.details[0].message })
+    }
     // Create a new activity using the service
     const activity = await createActivity(newActivityData, userId)
-
+    logger.info('Create new activity success')
     // Send the response with the updated activity data
     return res.status(201).json({ status: true, data: activity })
   } catch (error) {

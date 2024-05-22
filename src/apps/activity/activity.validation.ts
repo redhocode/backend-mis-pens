@@ -7,7 +7,7 @@ export const createActivityValidation = (playload: ActivityData) => {
     title: Joi.string().required(),
     date: Joi.date().required(),
     description: Joi.string().required(),
-    image: Joi.binary().optional(),
+    image: Joi.binary().allow('').optional(),
     link: Joi.string().allow('').optional(),
     userId: Joi.number().optional(),
     imageUrl: Joi.string().optional()
