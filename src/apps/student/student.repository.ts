@@ -3,7 +3,7 @@ import prisma from '../../db'
 
 interface Student {
   id: string
-  nrp: number
+  nrp: BigInt
   name: string
   major: string
   ipk: Decimal
