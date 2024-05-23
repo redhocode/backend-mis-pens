@@ -10,6 +10,7 @@ interface Student {
   year: number
   semester: number
   status: string
+  graduated: number | null
   createdAt: Date
   updatedAt: Date
   userId: string | null
@@ -24,6 +25,7 @@ export interface StudentData {
   nrp: string
   name: string
   major: string
+  graduated: string
   year: string
   semester: string
   status: string
@@ -81,6 +83,7 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
         major: studentData.major,
         year: parsedYear,
         semester: parsedSemester,
+        graduated: parseInt(studentData.graduated),
         status: studentData.status,
         ipk: new Decimal(studentData.ipk), // Pastikan ipk adalah Decimal
         image: studentData.image,
@@ -138,6 +141,7 @@ const editStudent = async (
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
+        graduated: parseInt(studentData.graduated),
         semester: parsedSemester,
         status: studentData.status,
         ipk: new Decimal(studentData.ipk), // Pastikan ipk adalah Decimal
