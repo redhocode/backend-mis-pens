@@ -4,6 +4,7 @@ import { findStudents, findStudentsById, insertStudent, deleteStudent, editStude
 import { StudentData, Student } from './student.repository'
 import { createStudentValidation } from './student.validation'
 import { supabase } from '../../utils/supabase'
+import { decode } from 'base64-arraybuffer'
 const getAllStudents = async (): Promise<Student[]> => {
   const students = await findStudents()
   return students
@@ -51,18 +52,31 @@ const editStudentById = async (
   const updatedStudent = await editStudent(id, studentData, userId, receivedAwardId)
   return updatedStudent
 }
-const uploadImageToSupabase = async (file: Express.Multer.File) => {
-  try {
-    // Upload image to Supabase Storage
-    const { data, error } = await supabase.storage.from('your-bucket-name').upload(file.originalname, file.buffer) as { data: { Key: string } | null, error: any };
-    if (error) {
-      throw new Error(`Error uploading image to Supabase: ${error.message}`)
-    }
-    // Return the URL of the uploaded image
-    return data?.Key || null
-  } catch (error: any) {
-    throw new Error(`Error uploading image to Supabase: ${error.message}`)
-  }
+const uploadImageToSupabase = async (file: Express.Multer.File): Promise<string> => {
+ try {
+   // Convert file buffer to ArrayBuffer
+   const fileArrayBuffer = file.buffer
+
+   // Upload the file to Supabase storage
+   const { data, error } = await supabase.storage.from('images').upload(file.originalname, fileArrayBuffer, {
+     contentType: file.mimetype
+   })
+
+   if (error) {
+     throw new Error(`Error uploading image to Supabase: ${error.message}`)
+   }
+
+   // Get the public URL of the uploaded file
+   const { data: publicUrlData } = supabase.storage.from('images').getPublicUrl(data.path)
+
+   if (!publicUrlData) {
+     throw new Error('Error getting public URL of the uploaded image')
+   }
+
+   return publicUrlData.publicUrl
+ } catch (error: any) {
+   throw new Error(`Error uploading image to Supabase: ${error.message}`)
+ }
 }
   
 export { getAllStudents, getStudentById, createStudent, deleteStudentById, editStudentById, uploadImageToSupabase }

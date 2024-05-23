@@ -11,7 +11,8 @@ import { storage } from '../../utils/multer'
 import multer from 'multer'
 import { uploadImageToSupabase } from './student.service'
 const router = express.Router()
-const upload = multer({ storage: storage })
+const upload = multer({ storage: multer.memoryStorage() })
+
 router.get('/', async (req: Request, res: Response) => {
   try {
     const students = await getAllStudents()
@@ -36,60 +37,42 @@ router.get('/:id', requireAdmin, async (req: Request, res: Response) => {
 })
 
 router.post('/', requireAdmin, upload.single('image'), async (req: Request, res: Response) => {
-  try {
-    const newStudentData: StudentData = req.body
+   try {
+     const newStudentData: StudentData = req.body
 
-    // Ensure userId is valid
-    const userId: string = req.userId as string
-    if (!userId) {
-      throw new Error('User ID is not valid.')
-    }
+     // Ensure userId is set
+     const userId: string = req.userId as string
+     if (!userId) {
+       throw new Error('User ID is not valid.')
+     }
 
-    // Get receivedAwardId from request body
-    const receivedAwardId: string = req.body.receivedAwardId || ''
+     // Get receivedAwardId from the request body, if any
+     const receivedAwardId: string = req.body.receivedAwardId
 
-    // Check if receivedAwardId is provided
-    if (receivedAwardId === undefined) {
-      logger.info('Received Award ID is not provided, continuing without it.')
-    }
+     const image = req.file
+     let imageUrl: string = ''
 
-    let imageUrl: string = '' // Initialize imageUrl variable with an empty string
+     if (image) {
+       imageUrl = await uploadImageToSupabase(image)
+       newStudentData.image = imageUrl
+     } else {
+       logger.info('Image is not provided, continuing without it.')
+       newStudentData.image = ''
+     }
 
-    // Check if image is uploaded
-    const image = req.file
-    if (image === undefined) {
-      logger.info('Image is not provided, continuing without it.')
-      newStudentData.image = '' // Or set it to null, depending on your preference
-    } else {
-      // Upload image to Supabase
-      const uploadedImageUrl = await uploadImageToSupabase(image)
-      // Assign the result to imageUrl if it's not null
-      if (uploadedImageUrl !== null) {
-        imageUrl = uploadedImageUrl
-      } else {
-        logger.error('Error uploading image to Supabase')
-        // Handle the error, for example by returning an error response
-        return res.status(500).send({ status: false, message: 'Error uploading image to Supabase' })
-      }
-    }
+     const { error } = createStudentValidation(newStudentData)
+     if (error) {
+       logger.error(`Error validating student data: ${error.message}`)
+       return res.status(422).send({ status: false, statusCode: 422, message: error.message })
+     }
 
-    newStudentData.image = imageUrl
-
-    // Validate student data
-    const { error } = createStudentValidation(newStudentData)
-    if (error) {
-      logger.error(`Error validating student data: ${error.message}`)
-      return res.status(422).send({ status: false, statusCode: 422, message: error.message })
-    }
-
-    // Create student
-    const student = await createStudent(newStudentData, userId, receivedAwardId)
-    logger.info('Student created successfully')
-    res.status(200).send({ status: true, statusCode: 200, data: student })
-  } catch (error: any) {
-    logger.error(`Error creating student: ${error.message}`)
-    res.status(400).send({ status: false, statusCode: 400, message: error.message })
-  }
+     const student = await createStudent(newStudentData, userId, receivedAwardId || '')
+     logger.info('Student created successfully')
+     res.status(200).send({ status: true, statusCode: 200, data: student })
+   } catch (error: any) {
+     logger.error(`Error creating student: ${error.message}`)
+     res.status(400).send({ status: false, statusCode: 400, message: error.message })
+   }
 })
 
 
