@@ -38,12 +38,13 @@ model User {
 
 model Student {
   id                String       @id @default(uuid())
-  nrp               Int       @unique
+  nrp               BigInt          @db.BigInt @unique
   name              String
   major             String
   year              Int
   semester          Int
   status            String
+  graduated          Int?
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   userId            String?
@@ -94,6 +95,7 @@ model Scholarship {
 model Academic {
   id          String   @id @default(uuid())
   title       String
+  image       String?
   date        String
   description String?
   createdAt   DateTime @default(now())

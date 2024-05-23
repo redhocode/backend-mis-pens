@@ -5,11 +5,11 @@ interface AcademicData {
   title: string
   date: string
   description: string
-  image: string | null
+  image: string 
   link: string
   userId: string
   username?: string
-  imageUrl?: string
+  imageUrl: string
 
 }
 
