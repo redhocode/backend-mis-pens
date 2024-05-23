@@ -1,5 +1,7 @@
 import { Decimal } from '@prisma/client/runtime/library'
 import prisma from '../../db'
+import '../../utils/bigint-json' // Ensure this import is present to apply the BigInt prototype extension
+
 
 interface Student {
   id: string
@@ -78,7 +80,7 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
 
     const student = await prisma.student.create({
       data: {
-        nrp: parseInt(studentData.nrp), // Pastikan nrp adalah BigInt
+        nrp: BigInt(studentData.nrp), // Pastikan nrp adalah BigInt
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
@@ -137,11 +139,11 @@ const editStudent = async (
         id: id
       },
       data: {
-        nrp: parseInt(studentData.nrp), // Pastikan nrp adalah BigInt
+        nrp: BigInt(studentData.nrp), // Pastikan nrp adalah BigInt
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
-        graduated: parseInt(studentData.graduated),
+        
         semester: parsedSemester,
         status: studentData.status,
         ipk: new Decimal(studentData.ipk), // Pastikan ipk adalah Decimal
