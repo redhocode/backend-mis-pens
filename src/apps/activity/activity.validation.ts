@@ -10,7 +10,7 @@ export const createActivityValidation = (playload: ActivityData) => {
     image: Joi.binary().allow('').optional(),
     link: Joi.string().allow('').optional(),
     userId: Joi.number().optional(),
-    imageUrl: Joi.string().optional()
+    imageUrl: Joi.string().allow('').optional()
   })
   return schema.validate(playload)
 }

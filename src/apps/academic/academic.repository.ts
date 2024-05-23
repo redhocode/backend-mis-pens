@@ -5,20 +5,25 @@ interface AcademicData {
   title: string
   date: string
   description: string
+  image: string | null
   link: string
   userId: string
   username?: string
+  imageUrl?: string
+
 }
 
 interface Academic {
   id: string
   title: string
+  image: string | null
   date: string | null
   description: string | null
   link: string | null
   createdAt: Date
   updatedAt: Date
   userId: string | null
+  
 }
 
 const findAcademics = async (): Promise<Academic[]> => {
@@ -41,6 +46,7 @@ const insertAcademic = async (academicData: AcademicData, userId: string): Promi
         title: academicData.title,
         date: academicData.date,
         description: academicData.description,
+        image: academicData.image,
         link: academicData.link,
         userId: userId,
         username: user.username
@@ -51,7 +57,7 @@ const insertAcademic = async (academicData: AcademicData, userId: string): Promi
     throw new Error(`Error inserting academic: ${error}`)
   }
 }
-const updateAcademic = async (id: string, academicData: AcademicData): Promise<Academic> => {
+const updateAcademic = async (id: string, academicData: AcademicData, userId: string): Promise<Academic> => {
   const academic = await prisma.academic.update({
     where: {
       id
@@ -59,7 +65,9 @@ const updateAcademic = async (id: string, academicData: AcademicData): Promise<A
     data: {
       title: academicData.title,
       date: academicData.date,
+      image: academicData.image,
       description: academicData.description,
+      userId: userId,
       link: academicData.link
     }
   })

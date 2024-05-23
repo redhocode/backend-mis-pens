@@ -8,7 +8,9 @@ export const createAcademicValidation = (playload: AcademicData) => {
     date: Joi.date().required(),
     description: Joi.string().required(),
     link: Joi.string().allow('').optional(),
-    userId: Joi.string().optional()
+    image: Joi.string().allow('').optional(),
+    userId: Joi.string().optional(),
+    imgUrl: Joi.string().allow('').optional(),
   })
   return schema.validate(playload)
 }

@@ -4,7 +4,8 @@ import {
   deleteActivityById,
   editActivityById,
   getAllActivities,
-  getActivityById
+  getActivityById,
+  uploadImageToSupabase
 } from './actifity.service'
 import { logger } from '../../utils/logger'
 import { ActivityData } from './activity.repository'
@@ -13,8 +14,7 @@ import multer from 'multer'
 import { requiredUserAdministrasi, requireUserAkademic, requireAdmin } from '../../middleware/auth'
 import { createActivityValidation } from './activity.validation'
 const router = express.Router()
-
-const upload = multer({ storage: storage })
+const upload = multer({ storage: multer.memoryStorage() })
 
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -45,19 +45,19 @@ router.post('/', requireAdmin || requiredUserAdministrasi, upload.single('image'
     const userId = req.userId // Ensure userId has been correctly set in the authentication middleware
 
     if (!userId) {
-      return res.status(401).json({ status: false, message: 'Unauthorized' })
+      throw new Error('User ID is not valid.')
     }
 
-    // Check if an image is uploaded
-    const image = req.file
-    if (image === undefined) {
-      logger.info('Image is not provided, continuing without it.')
-      // Jika image tidak ada, atur imageUrl menjadi null atau string kosong
-      newActivityData.image = '' // Atau bisa juga null, tergantung preferensi Anda
-    } else {
-      const imageUrl = '/uploads/' + image.filename
-      newActivityData.image = imageUrl
-    }
+   const image = req.file
+   let imageUrl: string = ''
+
+   if (image) {
+     imageUrl = await uploadImageToSupabase(image, userId)
+     newActivityData.image = imageUrl
+   } else {
+     logger.info('Image is not provided, continuing without it.')
+     newActivityData.image = ''
+   }
 
     const { error} = createActivityValidation(newActivityData)
     if (error) {
@@ -88,24 +88,34 @@ router.delete('/:id', requireAdmin || requiredUserAdministrasi, async (req: Requ
 })
 
 router.put('/:id', async (req: Request, res: Response) => {
+
+  try{
   const activityId: string = req.params.id
-  const activityData = req.body
+  const newActivityData = req.body
+const image = req.file
+  // Ensure userId is set
+    const userId: string = req.userId as string
+    if (!userId) {
+      throw new Error('User ID is not valid.')
+    }
 
-  if (!(activityData.image && activityData.description && activityData.title && activityData.date)) {
-    logger.error('Some fields are missing')
-    return res.status(400).send('Some fields are missing')
-  }
-
-  try {
-    const activity = await editActivityById(activityId, activityData)
+    // Jika ada file gambar yang diunggah, update path gambar dalam data mahasiswa
+    if (image) {
+      // Upload new image to Supabase or any other storage
+      const imageUrl = await uploadImageToSupabase(image, userId)
+      newActivityData.image = imageUrl
+    }
+    const { error } = createActivityValidation(newActivityData)
+    if (error) {
+      logger.error(`Error validatin Activity data: ${error.message}`)
+      return res.status(422).send({ status: false, statusCode: 422, message: error.message })
+    }
+    const academic = await editActivityById(activityId, newActivityData, userId)
     logger.info(`Edit activity with id ${activityId} success`)
-    res.send({
-      data: activity,
-      message: 'edit activity success'
-    })
+    res.status(200).send({ status: true, statusCode: 200, data: academic })
   } catch (error: any) {
-    logger.error(error)
-    res.status(400).send(error.message)
+    logger.error(`Error editing activity: ${error.message}`)
+    res.status(500).send({ status: false, statusCode: 500, message: 'Internal server error' })
   }
 })
 
@@ -114,27 +124,34 @@ router.patch(
   requireAdmin || requiredUserAdministrasi,
   upload.single('image'),
   async (req: Request, res: Response) => {
-    try {
-      const activityId: string = req.params.id
-      const activityData = req.body
-
-      // Check if an image is uploaded
-      const image = req.file
-      if (image) {
-        // Save the updated image URL to the activity data
-        activityData.image = '/uploads/' + image.filename
-      }
-
-      const activity = await editActivityById(activityId, activityData)
-      logger.info(`Edit activity with id ${activityId} success`)
-      res.send({
-        data: activity,
-        message: 'edit activity success'
-      })
-    } catch (error: any) {
-      logger.error(error)
-      res.status(400).send(error.message)
+   try{
+  const activityId: string = req.params.id
+  const newActivityData = req.body
+const image = req.file
+  // Ensure userId is set
+    const userId: string = req.userId as string
+    if (!userId) {
+      throw new Error('User ID is not valid.')
     }
+
+    // Jika ada file gambar yang diunggah, update path gambar dalam data mahasiswa
+    if (image) {
+      // Upload new image to Supabase or any other storage
+      const imageUrl = await uploadImageToSupabase(image, userId)
+      newActivityData.image = imageUrl
+    }
+    const { error } = createActivityValidation(newActivityData)
+    if (error) {
+      logger.error(`Error validating Activity data: ${error.message}`)
+      return res.status(422).send({ status: false, statusCode: 422, message: error.message })
+    }
+    const academic = await editActivityById(activityId, newActivityData, userId)
+    logger.info(`Edit activity with id ${activityId} success`)
+    res.status(200).send({ status: true, statusCode: 200, data: academic })
+  } catch (error: any) {
+    logger.error(`Error editing activity: ${error.message}`)
+    res.status(500).send({ status: false, statusCode: 500, message: 'Internal server error' })
+  }
   }
 )
 

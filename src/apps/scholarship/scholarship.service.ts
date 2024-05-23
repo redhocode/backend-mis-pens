@@ -10,6 +10,7 @@ import {
 } from './scholarship.repository'
 import { ScholarshipData, Scholarship } from './scholarship.repository'
 import { createScholarshipValidation } from './scholarship.validation'
+import { supabase } from '../../utils/supabase'
 import { v4 as uuidv4 } from 'uuid'
 const getAllScholarships = async (): Promise<Scholarship[]> => {
   const scholarships = await findScholarship()
@@ -42,12 +43,39 @@ const deleteScholarshipById = async (id: string): Promise<void> => {
   const scholarship = await getScholarshipById(id)
   await deleteScholarship(scholarship.id)
 }
-const editScholarshipById = async (id: string, newScholarshipData: ScholarshipData): Promise<Scholarship> => {
+const editScholarshipById = async (id: string, newScholarshipData: ScholarshipData, userId: string): Promise<Scholarship> => {
   const { error, value } = createScholarshipValidation(newScholarshipData)
   if (error) {
     throw new Error(error.details[0].message)
   }
-  const scholarship = await editScholarship(id, newScholarshipData)
+  await getScholarshipById(id)
+  const scholarship = await editScholarship(id, newScholarshipData,userId)
   return scholarship
+}
+export const uploadImageToSupabase = async (file: Express.Multer.File, userId: string): Promise<string> => {
+  try {
+    // Convert file buffer to ArrayBuffer
+    const fileArrayBuffer = file.buffer
+
+    // Upload the file to Supabase storage
+    const { data, error } = await supabase.storage.from('images').upload(userId + '/' + uuidv4(), fileArrayBuffer, {
+      contentType: file.mimetype
+    })
+
+    if (error) {
+      throw new Error(`Error uploading image to Supabase: ${error.message}`)
+    }
+
+    // Get the public URL of the uploaded file
+    const { data: publicUrlData } = supabase.storage.from('images').getPublicUrl(data.path)
+
+    if (!publicUrlData) {
+      throw new Error('Error getting public URL of the uploaded image')
+    }
+
+    return publicUrlData.publicUrl
+  } catch (error: any) {
+    throw new Error(`Error uploading image to Supabase: ${error.message}`)
+  }
 }
 export { getAllScholarships, getScholarshipById, createScholarship, deleteScholarshipById, editScholarshipById }

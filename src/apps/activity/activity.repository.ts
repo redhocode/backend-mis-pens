@@ -69,7 +69,7 @@ const insertActivity = async (activityData: ActivityData, userId: string): Promi
   }
 }
 
-const editActivity = async (id: string, activityData: ActivityData): Promise<Activity> => {
+const editActivity = async (id: string, activityData: ActivityData, userId: string): Promise<Activity> => {
   const activity = await prisma.activity.update({
     where: {
       id
@@ -78,6 +78,7 @@ const editActivity = async (id: string, activityData: ActivityData): Promise<Act
       title: activityData.title,
       date: activityData.date,
       image: activityData.image,
+      userId: userId,
       description: activityData.description,
       link: activityData.link
     }

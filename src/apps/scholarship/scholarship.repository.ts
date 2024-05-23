@@ -66,7 +66,7 @@ const insertScholarship = async (scholarshipData: ScholarshipData, userId: strin
   }
 }
 
-const editScholarship = async (id: string, scholarshipData: ScholarshipData): Promise<Scholarship> => {
+const editScholarship = async (id: string, scholarshipData: ScholarshipData, userId: string): Promise<Scholarship> => {
   const scholarship = await prisma.scholarship.update({
     where: {
       id
@@ -76,7 +76,8 @@ const editScholarship = async (id: string, scholarshipData: ScholarshipData): Pr
       date: scholarshipData.date,
       description: scholarshipData.description,
       image: scholarshipData.image,
-      link: scholarshipData.link
+      link: scholarshipData.link,
+      userId: userId
     }
   })
   return scholarship

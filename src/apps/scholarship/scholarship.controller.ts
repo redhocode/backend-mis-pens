@@ -7,7 +7,8 @@ import {
   getScholarshipById,
   createScholarship,
   deleteScholarshipById,
-  editScholarshipById
+  editScholarshipById,
+  uploadImageToSupabase
 } from './scholarship.service'
 import { logger } from '../../utils/logger'
 import { createScholarshipValidation } from './scholarship.validation'
@@ -16,8 +17,9 @@ import { storage } from '../../utils/multer'
 import multer from 'multer'
 import { requiredUserAdministrasi, requireUserAkademic, requireAdmin } from '../../middleware/auth'
 const router = express.Router()
+const upload = multer({ storage: multer.memoryStorage() })
 
-const upload = multer({ storage: storage })
+// Multer
 router.get('/', async (req: Request, res: Response) => {
   try {
     const scholarships = await getAllScholarships()
@@ -41,25 +43,25 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 })
 
-router.post('/', requireAdmin || requireUserAkademic, upload.single('image'), async (req: Request, res: Response) => {
+router.post('/', upload.single('image'), async (req: Request, res: Response) => {
   try {
     const newScholarshipData: ScholarshipData = req.body
 
-    // Pastikan userId telah ditetapkan dengan benar
-    const userId: string = req.userId as string
+   const userId: string = req.userId as string
+
     if (!userId) {
-      return res.status(401).json({ status: false, message: 'Unauthorized' })
+      throw new Error('User ID is not valid.')
     }
 
-    // Check if an image is uploaded
     const image = req.file
-    if (image === undefined) {
-      logger.info('Image is not provided, continuing without it.')
-      // Jika image tidak ada, atur imageUrl menjadi null atau string kosong
-      newScholarshipData.image = '' // Atau bisa juga null, tergantung preferensi Anda
-    } else {
-      const imageUrl = '/uploads/' + image.filename
+    let imageUrl: string = ''
+
+    if (image) {
+      imageUrl = await uploadImageToSupabase(image, userId)
       newScholarshipData.image = imageUrl
+    } else {
+      logger.info('Image is not provided, continuing without it.')
+      newScholarshipData.image = ''
     }
 
     const { error } = createScholarshipValidation(newScholarshipData)
@@ -76,7 +78,7 @@ router.post('/', requireAdmin || requireUserAkademic, upload.single('image'), as
   }
 })
 
-router.delete('/:id', requireAdmin || requireUserAkademic, async (req: Request, res: Response) => {
+router.delete('/:id',  async (req: Request, res: Response) => {
   try {
     const scholarshipId: string = req.params.id
     await deleteScholarshipById(scholarshipId)
@@ -88,47 +90,68 @@ router.delete('/:id', requireAdmin || requireUserAkademic, async (req: Request, 
   }
 })
 
-router.put('/:id', requireAdmin || requireUserAkademic, async (req: Request, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
+  try{
   const scholarshipId: string = req.params.id
-  const scholarshipData = req.body
-  if (!(scholarshipData.image && scholarshipData.description && scholarshipData.title && scholarshipData.date)) {
-    logger.error('Some fields are missing')
-    return res.status(400).send('Some fields are missing')
-  }
-  try {
-    const scholarship = await editScholarshipById(scholarshipId, scholarshipData)
-    logger.info(`Edit scholarship with id ${scholarshipId} success`)
-    res.send({
-      data: scholarship,
-      message: 'edit scholarship success'
-    })
+  const newScholarshipData = req.body
+  const image = req.file
+  // Ensure userId is set
+    const userId: string = req.userId as string
+    if (!userId) {
+      throw new Error('User ID is not valid.')
+    }
+
+    // Jika ada file gambar yang diunggah, update path gambar dalam data mahasiswa
+    if (image) {
+      // Upload new image to Supabase or any other storage
+      const imageUrl = await uploadImageToSupabase(image, userId)
+      newScholarshipData.image = imageUrl
+    }
+    const { error } = createScholarshipValidation(newScholarshipData)
+    if (error) {
+      logger.error(`Error validating scholarship data: ${error.message}`)
+      return res.status(422).send({ status: false, statusCode: 422, message: error.message })
+    }
+    const academic = await editScholarshipById(scholarshipId, newScholarshipData, userId)
+    logger.info(`Edit Scholarship with id ${scholarshipId} success`)
+    res.status(200).send({ status: true, statusCode: 200, data: academic })
   } catch (error: any) {
-    logger.error(error)
-    res.status(400).send(error.message)
+    logger.error(`Error editing Scholarship: ${error.message}`)
+    res.status(500).send({ status: false, statusCode: 500, message: 'Internal server error' })
   }
 })
 
 router.patch(
   '/:id',
-  requireAdmin || requireUserAkademic,
   upload.single('image'),
   async (req: Request, res: Response) => {
     try {
       const scholarshipId: string = req.params.id
-      const scholarshipData = req.body
+      const newScholarshipData = req.body
       const image = req.file
-      if (image) {
-        scholarshipData.image = '/uploads/' + image.filename
+      // Ensure userId is set
+      const userId: string = req.userId as string
+      if (!userId) {
+        throw new Error('User ID is not valid.')
       }
-      const scholarship = await editScholarshipById(scholarshipId, scholarshipData)
-      logger.info(`Edit scholarship with id ${scholarshipId} success`)
-      res.send({
-        data: scholarship,
-        message: 'edit scholarship success'
-      })
+
+      // Jika ada file gambar yang diunggah, update path gambar dalam data mahasiswa
+      if (image) {
+        // Upload new image to Supabase or any other storage
+        const imageUrl = await uploadImageToSupabase(image, userId)
+        newScholarshipData.image = imageUrl
+      }
+      const { error } = createScholarshipValidation(newScholarshipData)
+      if (error) {
+        logger.error(`Error validating scholarship data: ${error.message}`)
+        return res.status(422).send({ status: false, statusCode: 422, message: error.message })
+      }
+      const academic = await editScholarshipById(scholarshipId, newScholarshipData, userId)
+      logger.info(`Edit Scholarship with id ${scholarshipId} success`)
+      res.status(200).send({ status: true, statusCode: 200, data: academic })
     } catch (error: any) {
-      logger.error(error)
-      res.status(400).send(error.message)
+      logger.error(`Error editing Scholarship: ${error.message}`)
+      res.status(500).send({ status: false, statusCode: 500, message: 'Internal server error' })
     }
   }
 )
