@@ -52,13 +52,13 @@ const editStudentById = async (
   const updatedStudent = await editStudent(id, studentData, userId, receivedAwardId)
   return updatedStudent
 }
-const uploadImageToSupabase = async (file: Express.Multer.File): Promise<string> => {
+const uploadImageToSupabase = async (file: Express.Multer.File, userId: string): Promise<string> => {
  try {
    // Convert file buffer to ArrayBuffer
    const fileArrayBuffer = file.buffer
 
    // Upload the file to Supabase storage
-   const { data, error } = await supabase.storage.from('images').upload(file.originalname, fileArrayBuffer, {
+   const { data, error } = await supabase.storage.from('images').upload(userId + '/'+uuidv4(), fileArrayBuffer, {
      contentType: file.mimetype
    })
 

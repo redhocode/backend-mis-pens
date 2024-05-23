@@ -53,7 +53,7 @@ router.post('/', requireAdmin, upload.single('image'), async (req: Request, res:
      let imageUrl: string = ''
 
      if (image) {
-       imageUrl = await uploadImageToSupabase(image)
+       imageUrl = await uploadImageToSupabase(image, userId)
        newStudentData.image = imageUrl
      } else {
        logger.info('Image is not provided, continuing without it.')
