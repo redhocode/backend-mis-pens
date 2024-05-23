@@ -3,7 +3,7 @@ import prisma from '../../db'
 
 interface Student {
   id: string
-  nrp: number
+  nrp: bigint
   name: string
   major: string
   ipk: Decimal
@@ -78,7 +78,7 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
 
     const student = await prisma.student.create({
       data: {
-        nrp: parseInt(studentData.nrp), // Mengonversi nrp dari string menjadi integer
+        nrp: BigInt(studentData.nrp), // Mengonversi nrp dari string menjadi integer
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
@@ -140,7 +140,7 @@ const editStudent = async (
         id: id // Ensure to use the id parameter to locate the student
       },
       data: {
-        nrp: parseInt(studentData.nrp), // Convert nrp from string to integer
+        nrp: BigInt(studentData.nrp), // Convert nrp from string to integer
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
