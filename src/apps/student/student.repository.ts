@@ -35,8 +35,7 @@ const findStudents = async (): Promise<Student[]> => {
   const students = await prisma.student.findMany()
   return students.map((student) => ({
     ...student,
-    nrp: BigInt(student.nrp), // Convert nrp to bigint
-    ipk: new Decimal(student.ipk.toString()) // Convert ipk to Decimal
+    nrp: BigInt(student.nrp) // Pastikan nrp adalah BigInt
   }))
 }
 
@@ -49,8 +48,7 @@ const findStudentsById = async (id: string): Promise<Student | null> => {
   return student
     ? {
         ...student,
-        nrp: BigInt(student.nrp), // Convert nrp to bigint
-        ipk: new Decimal(student.ipk.toString()) // Convert ipk to Decimal
+        nrp: BigInt(student.nrp) // Pastikan nrp adalah BigInt
       }
     : null
 }
@@ -85,13 +83,13 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
 
     const student = await prisma.student.create({
       data: {
-        nrp: BigInt(studentData.nrp), // Convert nrp from string to bigint
+        nrp: BigInt(studentData.nrp), // Pastikan nrp adalah BigInt
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
         semester: parsedSemester,
         status: studentData.status,
-        ipk: new Decimal(studentData.ipk), // Convert ipk to Decimal
+        ipk: new Decimal(studentData.ipk), // Pastikan ipk adalah Decimal
         image: studentData.image,
         userId: userId,
         username: user.username,
@@ -101,8 +99,7 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
     })
     return {
       ...student,
-      nrp: BigInt(student.nrp), // Ensure the returned student has nrp as bigint
-      ipk: new Decimal(student.ipk.toString()) // Ensure the returned student has ipk as Decimal
+      nrp: BigInt(student.nrp) // Pastikan nrp adalah BigInt
     }
   } catch (error: any) {
     throw new Error(`Error inserting student: ${error.message}`)
@@ -147,13 +144,13 @@ const editStudent = async (
         id: id
       },
       data: {
-        nrp: BigInt(studentData.nrp), // Convert nrp from string to bigint
+        nrp: BigInt(studentData.nrp), // Pastikan nrp adalah BigInt
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
         semester: parsedSemester,
         status: studentData.status,
-        ipk: new Decimal(studentData.ipk), // Convert ipk to Decimal
+        ipk: new Decimal(studentData.ipk), // Pastikan ipk adalah Decimal
         image: studentData.image,
         userId: userId,
         username: user.username,
@@ -163,8 +160,7 @@ const editStudent = async (
     })
     return {
       ...student,
-      nrp: BigInt(student.nrp), // Ensure the returned student has nrp as bigint
-      ipk: new Decimal(student.ipk.toString()) // Ensure the returned student has ipk as Decimal
+      nrp: BigInt(student.nrp) // Pastikan nrp adalah BigInt
     }
   } catch (error: any) {
     throw new Error(`Error updating student: ${error.message}`)
