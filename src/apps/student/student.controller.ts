@@ -126,7 +126,9 @@ router.patch('/:id', requireAdmin, upload.single('image'), async (req: Request, 
 
     // Jika ada file gambar yang diunggah, update path gambar dalam data mahasiswa
     if (image) {
-      studentData.image = '/uploads/' + image.filename
+      // Upload new image to Supabase or any other storage
+      const imageUrl = await uploadImageToSupabase(image, userId)
+      studentData.image = imageUrl
     }
 
     // Panggil fungsi editStudentById untuk mengedit mahasiswa berdasarkan ID
