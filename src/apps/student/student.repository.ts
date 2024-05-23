@@ -33,7 +33,11 @@ export interface StudentData {
 
 const findStudents = async (): Promise<Student[]> => {
   const students = await prisma.student.findMany()
-  return students
+  return students.map((student) => ({
+    ...student,
+    nrp: BigInt(student.nrp), // Convert nrp to BigInt
+    ipk: new Decimal(student.ipk) // Convert ipk to Decimal
+  }))
 }
 
 const findStudentsById = async (id: string): Promise<Student | null> => {
@@ -43,6 +47,12 @@ const findStudentsById = async (id: string): Promise<Student | null> => {
     }
   })
   return student
+    ? {
+        ...student,
+        nrp: BigInt(student.nrp), // Convert nrp to BigInt
+        ipk: new Decimal(student.ipk) // Convert ipk to Decimal
+      }
+    : null
 }
 
 const insertStudent = async (studentData: StudentData, userId: string, receivedAwardId: string): Promise<Student> => {
@@ -56,9 +66,7 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
       throw new Error('User not found')
     }
 
-    // Mengambil data beasiswa berdasarkan receivedAwardId
     let scholarshipTitle: string | null = null
-    // Jika receivedAwardId tidak kosong, ambil data beasiswa
     if (receivedAwardId) {
       const scholarship = await prisma.scholarship.findUnique({
         where: {
@@ -72,19 +80,18 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
       scholarshipTitle = scholarship.title
     }
 
-    // Mengonversi nilai string menjadi integer di sisi backend
     const parsedYear = parseInt(studentData.year)
     const parsedSemester = parseInt(studentData.semester)
 
     const student = await prisma.student.create({
       data: {
-        nrp: parseInt(studentData.nrp), // Mengonversi nrp dari string menjadi integer
+        nrp: BigInt(studentData.nrp), // Convert nrp from string to BigInt
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
         semester: parsedSemester,
         status: studentData.status,
-        ipk: parseFloat(studentData.ipk),
+        ipk: new Decimal(studentData.ipk), // Convert ipk to Decimal
         image: studentData.image,
         userId: userId,
         username: user.username,
@@ -92,7 +99,11 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
         receivedAwardName: scholarshipTitle
       }
     })
-    return student
+    return {
+      ...student,
+      nrp: BigInt(student.nrp), // Ensure the returned student has nrp as BigInt
+      ipk: new Decimal(student.ipk) // Ensure the returned student has ipk as Decimal
+    }
   } catch (error: any) {
     throw new Error(`Error inserting student: ${error.message}`)
   }
@@ -114,9 +125,7 @@ const editStudent = async (
       throw new Error('User not found')
     }
 
-    // Mengambil data beasiswa berdasarkan receivedAwardId
     let scholarshipTitle: string | null = null
-    // Jika receivedAwardId tidak kosong, ambil data beasiswa
     if (receivedAwardId) {
       const scholarship = await prisma.scholarship.findUnique({
         where: {
@@ -130,23 +139,21 @@ const editStudent = async (
       scholarshipTitle = scholarship.title
     }
 
-    // Mengonversi nilai string menjadi integer di sisi backend
     const parsedYear = parseInt(studentData.year)
     const parsedSemester = parseInt(studentData.semester)
 
-    // Update student data
     const student = await prisma.student.update({
       where: {
-        id: id // Ensure to use the id parameter to locate the student
+        id: id
       },
       data: {
-        nrp: parseInt(studentData.nrp), // Convert nrp from string to integer
+        nrp: BigInt(studentData.nrp), // Convert nrp from string to BigInt
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
         semester: parsedSemester,
         status: studentData.status,
-        ipk: parseFloat(studentData.ipk), // Ensure IPK is a float
+        ipk: new Decimal(studentData.ipk), // Convert ipk to Decimal
         image: studentData.image,
         userId: userId,
         username: user.username,
@@ -154,7 +161,11 @@ const editStudent = async (
         receivedAwardName: scholarshipTitle
       }
     })
-    return student
+    return {
+      ...student,
+      nrp: BigInt(student.nrp), // Ensure the returned student has nrp as BigInt
+      ipk: new Decimal(student.ipk) // Ensure the returned student has ipk as Decimal
+    }
   } catch (error: any) {
     throw new Error(`Error updating student: ${error.message}`)
   }
