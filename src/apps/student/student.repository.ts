@@ -38,9 +38,7 @@ const findStudents = async (): Promise<Student[]> => {
 
 const findStudentsById = async (id: string): Promise<Student | null> => {
   const student = await prisma.student.findUnique({
-    where: {
-      id
-    }
+    where: { id }
   })
   return student
 }
@@ -48,45 +46,33 @@ const findStudentsById = async (id: string): Promise<Student | null> => {
 const insertStudent = async (studentData: StudentData, userId: string, receivedAwardId: string): Promise<Student> => {
   try {
     const user = await prisma.user.findUnique({
-      where: {
-        id: userId
-      }
+      where: { id: userId }
     })
-    if (!user) {
-      throw new Error('User not found')
-    }
+    if (!user) throw new Error('User not found')
 
-    // Mengambil data beasiswa berdasarkan receivedAwardId
     let scholarshipTitle: string | null = null
-    // Jika receivedAwardId tidak kosong, ambil data beasiswa
     if (receivedAwardId) {
       const scholarship = await prisma.scholarship.findUnique({
-        where: {
-          id: receivedAwardId
-        }
+        where: { id: receivedAwardId }
       })
-
-      if (!scholarship) {
-        throw new Error('Scholarship not found')
-      }
+      if (!scholarship) throw new Error('Scholarship not found')
       scholarshipTitle = scholarship.title
     }
 
-    // Mengonversi nilai string menjadi integer di sisi backend
     const parsedYear = parseInt(studentData.year)
     const parsedSemester = parseInt(studentData.semester)
 
     const student = await prisma.student.create({
       data: {
-        nrp: BigInt(studentData.nrp), // Mengonversi nrp dari string menjadi integer
+        nrp: BigInt(studentData.nrp),
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
         semester: parsedSemester,
         status: studentData.status,
-        ipk: parseFloat(studentData.ipk),
+        ipk: new Decimal(studentData.ipk),
         image: studentData.image,
-        userId: userId,
+        userId,
         username: user.username,
         receivedAwardId: receivedAwardId || null,
         receivedAwardName: scholarshipTitle
@@ -106,49 +92,34 @@ const editStudent = async (
 ): Promise<Student> => {
   try {
     const user = await prisma.user.findUnique({
-      where: {
-        id: userId
-      }
+      where: { id: userId }
     })
-    if (!user) {
-      throw new Error('User not found')
-    }
+    if (!user) throw new Error('User not found')
 
-    // Mengambil data beasiswa berdasarkan receivedAwardId
     let scholarshipTitle: string | null = null
-    // Jika receivedAwardId tidak kosong, ambil data beasiswa
     if (receivedAwardId) {
       const scholarship = await prisma.scholarship.findUnique({
-        where: {
-          id: receivedAwardId
-        }
+        where: { id: receivedAwardId }
       })
-
-      if (!scholarship) {
-        throw new Error('Scholarship not found')
-      }
+      if (!scholarship) throw new Error('Scholarship not found')
       scholarshipTitle = scholarship.title
     }
 
-    // Mengonversi nilai string menjadi integer di sisi backend
     const parsedYear = parseInt(studentData.year)
     const parsedSemester = parseInt(studentData.semester)
 
-    // Update student data
     const student = await prisma.student.update({
-      where: {
-        id: id // Ensure to use the id parameter to locate the student
-      },
+      where: { id },
       data: {
-        nrp: BigInt(studentData.nrp), // Convert nrp from string to integer
+        nrp: BigInt(studentData.nrp),
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
         semester: parsedSemester,
         status: studentData.status,
-        ipk: parseFloat(studentData.ipk), // Ensure IPK is a float
+        ipk: new Decimal(studentData.ipk),
         image: studentData.image,
-        userId: userId,
+        userId,
         username: user.username,
         receivedAwardId: receivedAwardId || null,
         receivedAwardName: scholarshipTitle
@@ -162,9 +133,7 @@ const editStudent = async (
 
 const deleteStudent = async (id: string): Promise<void> => {
   await prisma.student.delete({
-    where: {
-      id
-    }
+    where: { id }
   })
 }
 

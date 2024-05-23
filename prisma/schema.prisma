@@ -1,27 +1,12 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
-   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
-
 datasource db {
-
-  provider = "postgresql"
-
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
-
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model Product {
@@ -32,80 +17,91 @@ model Product {
   image       String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@map("Product")
 }
 
 model User {
-  id           String           @id @default(uuid())
+  id           String        @id @default(uuid())
   username     String        @unique
   password     String
- role         String? 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  students     Student[] // Relasi ke mahasiswa yang diinputkan oleh pengguna
-  activities   Activity[] // Relasi ke kegiatan yang diinputkan oleh pengguna
-  scholarships Scholarship[] // Relasi ke beasiswa yang diinputkan oleh pengguna
-  academic Academic[]
+  role         String?
+  academic     Academic[]
+  activities   Activity[]
+  scholarships Scholarship[]
+  students     Student[]
 
+  @@map("User")
 }
 
 model Student {
-  id        String      @id @default(uuid())
-  nrp       Int      @unique
-  name      String
-  major     String
-  image     String?
-  year      Int
-  ipk       Decimal @default(0.0)
-  semester  Int
-  status    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User?    @relation(fields: [userId], references: [id]) 
-  userId    String?
-  username  String?  // Menyimpan username pengguna
-  receivedAward   Scholarship? @relation(fields: [receivedAwardId], references: [id])
-  receivedAwardId String?
+  id                String       @id @default(uuid())
+  nrp               BigInt          @unique
+  name              String
+  major             String
+  year              Int
+  semester          Int
+  status            String
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  userId            String?
+  username          String?
+  ipk               Decimal      @default(0.0)
+  image             String?
+  receivedAwardId   String?
   receivedAwardName String?
+  receivedAward     Scholarship? @relation(fields: [receivedAwardId], references: [id])
+  user              User?        @relation(fields: [userId], references: [id])
+
+  @@map("Student")
 }
 
 model Activity {
-  id          String      @id @default(uuid())
+  id          String   @id @default(uuid())
   title       String
-  date String
   description String?
-  image       String?
-  link        String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  user        User?    @relation(fields: [userId], references: [id])
   userId      String?
-  username  String?  // Menyimpan username pengguna
+  date        String
+  username    String?
+  link        String?
+  image       String?
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@map("Activity")
 }
 
 model Scholarship {
-  id          String      @id @default(uuid())
+  id          String    @id @default(uuid())
   title       String
-  date String
   description String?
-  image String?
-  link        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User?    @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   userId      String?
-  username  String?  // Menyimpan username pengguna
+  date        String
+  username    String?
+  link        String?
+  image       String?
+  user        User?     @relation(fields: [userId], references: [id])
   awardedTo   Student[]
+
+  @@map("Scholarship")
 }
 
 model Academic {
-  id          String      @id @default(uuid())
+  id          String   @id @default(uuid())
   title       String
   date        String
   description String?
-  link       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  user        User?    @relation(fields: [userId], references: [id])
   userId      String?
-  username  String?  // Menyimpan username pengguna
+  username    String?
+  link        String?
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@map("Academic")
 }
