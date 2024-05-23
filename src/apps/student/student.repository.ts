@@ -29,6 +29,7 @@ export interface StudentData {
   status: string
   ipk: string
   image: string
+  
 }
 
 const findStudents = async (): Promise<Student[]> => {
@@ -160,5 +161,6 @@ const deleteStudent = async (id: string): Promise<void> => {
     }
   })
 }
+
 
 export { Student, findStudents, findStudentsById, insertStudent, editStudent, deleteStudent }

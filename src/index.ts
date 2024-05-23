@@ -14,6 +14,7 @@ import academicController from './apps/academic/academic.controller'
 import scholarshipController from './apps/scholarship/scholarship.controller'
 import { AuthRouter } from './apps/user/auth.router'
 
+import multer from 'multer'
 // Load environment variables based on environment (development or production)
 require('dotenv').config()
 const envFile = process.env.NODE_ENV === 'development' ? '.env.dev' : '.env.prod'
@@ -34,7 +35,11 @@ app.use(
     credentials: true // Allow credentials (cookies, authorization headers)
   })
 )
+// Store uploaded files in memory
+const storage = multer.memoryStorage();
 
+// Initialize multer with the storage configuration
+const upload = multer({ storage: storage });
 app.use(deserializedToken)
 // Set additional CORS headers for preflight requests
 app.options('*', cors())

@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid' // Import untuk menghasilkan nanoid
 import { findStudents, findStudentsById, insertStudent, deleteStudent, editStudent } from './student.repository'
 import { StudentData, Student } from './student.repository'
 import { createStudentValidation } from './student.validation'
-
+import { supabase } from '../../utils/supabase'
 const getAllStudents = async (): Promise<Student[]> => {
   const students = await findStudents()
   return students
@@ -51,5 +51,18 @@ const editStudentById = async (
   const updatedStudent = await editStudent(id, studentData, userId, receivedAwardId)
   return updatedStudent
 }
-
-export { getAllStudents, getStudentById, createStudent, deleteStudentById, editStudentById }
+const uploadImageToSupabase = async (file: Express.Multer.File) => {
+  try {
+    // Upload image to Supabase Storage
+    const { data, error } = await supabase.storage.from('your-bucket-name').upload(file.originalname, file.buffer) as { data: { Key: string } | null, error: any };
+    if (error) {
+      throw new Error(`Error uploading image to Supabase: ${error.message}`)
+    }
+    // Return the URL of the uploaded image
+    return data?.Key || null
+  } catch (error: any) {
+    throw new Error(`Error uploading image to Supabase: ${error.message}`)
+  }
+}
+  
+export { getAllStudents, getStudentById, createStudent, deleteStudentById, editStudentById, uploadImageToSupabase }

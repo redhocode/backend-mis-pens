@@ -9,6 +9,7 @@ import { accessValidation, requireAdmin, requireUser } from '../../middleware/au
 import { StudentData } from './student.repository'
 import { storage } from '../../utils/multer'
 import multer from 'multer'
+import { uploadImageToSupabase } from './student.service'
 const router = express.Router()
 const upload = multer({ storage: storage })
 router.get('/', async (req: Request, res: Response) => {
@@ -38,40 +39,51 @@ router.post('/', requireAdmin, upload.single('image'), async (req: Request, res:
   try {
     const newStudentData: StudentData = req.body
 
-    // Pastikan userId telah ditetapkan dengan benar
+    // Ensure userId is valid
     const userId: string = req.userId as string
     if (!userId) {
       throw new Error('User ID is not valid.')
     }
-    // Mendapatkan receivedAwardId dari body request, jika ada
-    const receivedAwardId: string = req.body.receivedAwardId
-    // Lakukan pengecekan apakah receivedAwardId ada atau tidak
+
+    // Get receivedAwardId from request body
+    const receivedAwardId: string = req.body.receivedAwardId || ''
+
+    // Check if receivedAwardId is provided
     if (receivedAwardId === undefined) {
       logger.info('Received Award ID is not provided, continuing without it.')
     }
-    // if (!receivedAwardId) {
-    //   throw new Error('Received Award ID is required.')
-    // }
+
+    let imageUrl: string = '' // Initialize imageUrl variable with an empty string
+
+    // Check if image is uploaded
     const image = req.file
-    // Lakukan pengecekan apakah image ada atau tidak
     if (image === undefined) {
       logger.info('Image is not provided, continuing without it.')
-      // Jika image tidak ada, atur imageUrl menjadi null atau string kosong
-      newStudentData.image = '' // Atau bisa juga null, tergantung preferensi Anda
+      newStudentData.image = '' // Or set it to null, depending on your preference
     } else {
-      const imageUrl = '/uploads/' + image.filename
-      newStudentData.image = imageUrl
-    }
-    const { error } = createStudentValidation(newStudentData)
-    if (receivedAwardId !== undefined) {
-      const { error } = createStudentValidation(newStudentData)
-      if (error) {
-        logger.error(`Error validating student data: ${error.message}`)
-        return res.status(422).send({ status: false, statusCode: 422, message: error.message })
+      // Upload image to Supabase
+      const uploadedImageUrl = await uploadImageToSupabase(image)
+      // Assign the result to imageUrl if it's not null
+      if (uploadedImageUrl !== null) {
+        imageUrl = uploadedImageUrl
+      } else {
+        logger.error('Error uploading image to Supabase')
+        // Handle the error, for example by returning an error response
+        return res.status(500).send({ status: false, message: 'Error uploading image to Supabase' })
       }
     }
 
-    const student = await createStudent(newStudentData, userId, receivedAwardId || '')
+    newStudentData.image = imageUrl
+
+    // Validate student data
+    const { error } = createStudentValidation(newStudentData)
+    if (error) {
+      logger.error(`Error validating student data: ${error.message}`)
+      return res.status(422).send({ status: false, statusCode: 422, message: error.message })
+    }
+
+    // Create student
+    const student = await createStudent(newStudentData, userId, receivedAwardId)
     logger.info('Student created successfully')
     res.status(200).send({ status: true, statusCode: 200, data: student })
   } catch (error: any) {
@@ -79,6 +91,7 @@ router.post('/', requireAdmin, upload.single('image'), async (req: Request, res:
     res.status(400).send({ status: false, statusCode: 400, message: error.message })
   }
 })
+
 
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
