@@ -75,7 +75,7 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
 
     const student = await prisma.student.create({
       data: {
-        nrp: BigInt(studentData.nrp), // Pastikan nrp adalah BigInt
+        nrp: parseInt(studentData.nrp), // Pastikan nrp adalah BigInt
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
@@ -133,7 +133,7 @@ const editStudent = async (
         id: id
       },
       data: {
-        nrp: BigInt(studentData.nrp), // Pastikan nrp adalah BigInt
+        nrp: parseInt(studentData.nrp), // Pastikan nrp adalah BigInt
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
