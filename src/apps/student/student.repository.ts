@@ -3,7 +3,7 @@ import prisma from '../../db'
 
 interface Student {
   id: string
-  nrp: bigint
+  nrp: number | bigint
   name: string
   major: string
   ipk: Decimal
@@ -33,10 +33,7 @@ export interface StudentData {
 
 const findStudents = async (): Promise<Student[]> => {
   const students = await prisma.student.findMany()
-  return students.map((student) => ({
-    ...student,
-    nrp: BigInt(student.nrp) // Pastikan nrp adalah BigInt
-  }))
+   return students
 }
 
 const findStudentsById = async (id: string): Promise<Student | null> => {
@@ -46,11 +43,6 @@ const findStudentsById = async (id: string): Promise<Student | null> => {
     }
   })
   return student
-    ? {
-        ...student,
-        nrp: BigInt(student.nrp) // Pastikan nrp adalah BigInt
-      }
-    : null
 }
 
 const insertStudent = async (studentData: StudentData, userId: string, receivedAwardId: string): Promise<Student> => {
@@ -97,10 +89,7 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
         receivedAwardName: scholarshipTitle
       }
     })
-    return {
-      ...student,
-      nrp: BigInt(student.nrp) // Pastikan nrp adalah BigInt
-    }
+    return student
   } catch (error: any) {
     throw new Error(`Error inserting student: ${error.message}`)
   }
@@ -158,10 +147,7 @@ const editStudent = async (
         receivedAwardName: scholarshipTitle
       }
     })
-    return {
-      ...student,
-      nrp: BigInt(student.nrp) // Pastikan nrp adalah BigInt
-    }
+    return student
   } catch (error: any) {
     throw new Error(`Error updating student: ${error.message}`)
   }
