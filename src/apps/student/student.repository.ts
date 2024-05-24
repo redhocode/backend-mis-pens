@@ -85,7 +85,7 @@ const insertStudent = async (studentData: StudentData, userId: string, receivedA
         major: studentData.major,
         year: parsedYear,
         semester: parsedSemester,
-        graduated: parseInt(studentData.graduated),
+        graduated: parseInt(studentData.graduated) || null,
         status: studentData.status,
         ipk: new Decimal(studentData.ipk), // Pastikan ipk adalah Decimal
         image: studentData.image,
@@ -143,7 +143,7 @@ const editStudent = async (
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
-        
+        graduated: parseInt(studentData.graduated) || null,
         semester: parsedSemester,
         status: studentData.status,
         ipk: new Decimal(studentData.ipk), // Pastikan ipk adalah Decimal
