@@ -143,7 +143,7 @@ const editStudent = async (
         name: studentData.name,
         major: studentData.major,
         year: parsedYear,
-        graduated: parseInt(studentData.graduated) || null,
+        graduated: parseInt(studentData.graduated),
         semester: parsedSemester,
         status: studentData.status,
         ipk: new Decimal(studentData.ipk), // Pastikan ipk adalah Decimal
