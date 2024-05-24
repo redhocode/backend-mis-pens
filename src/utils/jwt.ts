@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
-import { valid } from 'joi'
+
 // import { findUserByUsername } from 'src/apps/user/auth.service'
 // Memuat variabel lingkungan dari file .env.prod
 dotenv.config()
